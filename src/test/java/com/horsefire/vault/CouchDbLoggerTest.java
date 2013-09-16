@@ -36,6 +36,11 @@ public class CouchDbLoggerTest extends TestCase {
 	}
 
 	@Test
+	public void testBackslash() {
+		assertTranslated("Test\\Slash", "[\"log\", \"Test\\\\Slash\"]");
+	}
+
+	@Test
 	public void testNoNewLine() {
 		m_testStream.print("First line");
 		assertTranslated("Second line", "[\"log\", \"First lineSecond line\"]");

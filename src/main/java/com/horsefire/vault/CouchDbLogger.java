@@ -28,7 +28,7 @@ public class CouchDbLogger extends OutputStream {
 			String buffer = m_buffer.toString();
 			if (buffer.endsWith(m_newLine)) {
 				String message = buffer.substring(0, buffer.length() - 2)
-						.replace("\"", "\\\"");
+						.replace("\\", "\\\\").replace("\"", "\\\"");
 				m_delegate.print("[\"log\", \"" + message + "\"]\n");
 				m_buffer.setLength(0);
 			}
