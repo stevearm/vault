@@ -16,6 +16,9 @@ public class Options {
 	@Parameter(names = { "--exportLogConfig" }, description = "Write out a sample log config")
 	public boolean exportLogConfig = false;
 
+	@Parameter(names = { "--logConfigFile" }, description = "Log config file")
+	public String logConfigFile = "vault.xml";
+
 	@Parameter(names = { "--dbHost" }, description = "Database host")
 	public String dbHost = "127.0.0.1:5984";
 

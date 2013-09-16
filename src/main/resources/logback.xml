@@ -4,7 +4,7 @@
 	<!-- Uncomment this appender and the entry at the bottom to add file logging. -->
 	<!--
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>vault.log</file>
+		<file>C:\Vault\vault.log</file>
 		<append>true</append>
 		<encoder><pattern>%d [%thread] %-5level %logger{35} - %msg%n</pattern></encoder>
 	</appender>
@@ -17,7 +17,7 @@
 	<!-- Levels are OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL -->
 	<logger name="org.eclipse.jetty" level="WARN"/>
 
-	<root level="DEBUG">
+	<root level="ERROR">
 		<appender-ref ref="CONSOLE" />
 		<!-- <appender-ref ref="FILE" /> -->
 	</root>

@@ -10,23 +10,23 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 
 public class Vault {
-
-	private static final File EXTERNAL_LOG_CONFIG = new File("vault.xml");
 
 	private final Options m_options;
 	private final Sentinel.Factory m_sentinelFactory;
 
+	@Inject
 	public Vault(Options options, Sentinel.Factory sentinelFactory) {
 		m_options = options;
 		m_sentinelFactory = sentinelFactory;
 	}
 
-	private void exportLogConfig() throws IOException {
+	private void exportLogConfig(File externalLogConfig) throws IOException {
 		InputStream in = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream("logback.xml");
-		FileOutputStream out = new FileOutputStream(EXTERNAL_LOG_CONFIG);
+		FileOutputStream out = new FileOutputStream(externalLogConfig);
 		try {
 			ByteStreams.copy(in, out);
 		} finally {
@@ -36,22 +36,37 @@ public class Vault {
 	}
 
 	public void run() throws IOException {
+		File externalLogConfig = new File(m_options.logConfigFile);
+
 		if (m_options.exportLogConfig) {
-			exportLogConfig();
+			exportLogConfig(externalLogConfig);
 			return;
 		}
 
-		if (EXTERNAL_LOG_CONFIG.isFile()) {
+		if (externalLogConfig.isFile()) {
 			System.setProperty("logback.configurationFile",
-					EXTERNAL_LOG_CONFIG.getAbsolutePath());
+					externalLogConfig.getAbsolutePath());
 		}
 
 		String host = m_options.dbHost;
 		String id = m_options.id;
 
-		if (m_options.sentinel) {
-			// Install stdout filter, then get new host/id
+		if (!m_options.sentinel) {
+			if (host == null) {
+				System.out.println("Must specify a host");
+				return;
+			}
+			if (id == null) {
+				System.out.println("Must specify an id");
+				return;
+			}
+		} else {
 			PrintStream externalStdout = System.out;
+			CouchDbLogger.install();
+			CouchDbCommunicator communicator = new CouchDbCommunicator(
+					externalStdout, System.in);
+			host = communicator.getHost();
+			id = communicator.getId();
 		}
 
 		m_sentinelFactory.create(host, id).run();

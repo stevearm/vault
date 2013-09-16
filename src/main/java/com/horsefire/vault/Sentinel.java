@@ -5,12 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.name.Named;
 
 public class Sentinel {
 
 	public static interface Factory {
-		Sentinel create(String host, String id);
+		Sentinel create(@Assisted("host") String host, @Assisted("id") String id);
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(Sentinel.class);
@@ -20,8 +19,8 @@ public class Sentinel {
 	private final String m_id;
 
 	@Inject
-	public Sentinel(Options options, @Assisted @Named("host") String host,
-			@Assisted @Named("host") String id) {
+	public Sentinel(Options options, @Assisted("host") String host,
+			@Assisted("id") String id) {
 		m_options = options;
 		m_host = host;
 		m_id = id;
