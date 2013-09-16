@@ -41,6 +41,12 @@ public class CouchDbLoggerTest extends TestCase {
 	}
 
 	@Test
+	public void testNewLine() {
+		assertTranslated("Test\nLine", "[\"log\", \"Test\\nLine\"]");
+		assertTranslated("Test Line\n", "[\"log\", \"Test Line\\n\"]");
+	}
+
+	@Test
 	public void testNoNewLine() {
 		m_testStream.print("First line");
 		assertTranslated("Second line", "[\"log\", \"First lineSecond line\"]");

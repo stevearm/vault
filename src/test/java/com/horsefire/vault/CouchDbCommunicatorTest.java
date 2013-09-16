@@ -43,7 +43,7 @@ public class CouchDbCommunicatorTest extends TestCase {
 
 					CouchDbCommunicator communicator = new CouchDbCommunicator(
 							new PrintStream(mock), mock.getInputStream());
-					String id = communicator.getId();
+					communicator.getId();
 					gotAnswer.set(true);
 				} catch (IOException e) {
 					System.err.println("Exception during test: " + e);
