@@ -32,9 +32,18 @@ public class CouchDbCommunicator {
 		while (read != -1) {
 			char character = (char) read;
 			if (character == '\n') {
+				if (response.length() == 0
+						|| "null".equals(response.toString())) {
+					LOG.debug("Got no response");
+					return null;
+				}
 				String tmp = response.toString();
-				LOG.debug("Got response: {}", tmp);
-				return tmp;
+				if (tmp.charAt(0) == '"' && tmp.charAt(tmp.length() - 1) == '"') {
+					tmp = tmp.substring(1, tmp.length() - 1);
+					LOG.debug("Got response: {}", tmp);
+					return tmp;
+				}
+				throw new IOException("Response is missing quotes");
 			}
 			response.append(character);
 			LOG.trace("Response so far: {}", response);
@@ -43,11 +52,15 @@ public class CouchDbCommunicator {
 		throw new IOException("Input stream closed");
 	}
 
-	public String getHost() throws IOException {
-		return get("httpd", "port") + ":" + get("httpd", "bind_address");
+	public String getBindAddress() throws IOException {
+		return get("httpd", "bind_address");
 	}
 
-	public String getId() throws IOException {
+	public String getPort() throws IOException {
+		return get("httpd", "port");
+	}
+
+	public String getUuid() throws IOException {
 		return get("couchdb", "uuid");
 	}
 }

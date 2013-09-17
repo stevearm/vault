@@ -65,8 +65,20 @@ public class Vault {
 			CouchDbLogger.install();
 			CouchDbCommunicator communicator = new CouchDbCommunicator(
 					externalStdout, System.in);
-			host = communicator.getHost();
-			id = communicator.getId();
+
+			String ip = communicator.getBindAddress();
+			String port = communicator.getPort();
+			if (ip == null || port == null) {
+				System.out.println("Error getting ip and port");
+				throw new IOException("Error getting ip and port");
+			}
+			host = ip + ":" + port;
+
+			id = communicator.getUuid();
+			if (id == null) {
+				System.out.println("Error getting uuid");
+				throw new IOException("Error getting uuid");
+			}
 		}
 
 		m_sentinelFactory.create(host, id).run();

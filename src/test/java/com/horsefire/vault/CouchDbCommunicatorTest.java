@@ -20,13 +20,25 @@ public class CouchDbCommunicatorTest extends TestCase {
 	public void testWorking() throws Exception {
 		CouchDbMock mock = new CouchDbMock(
 				"[\"get\", \"couchdb\", \"uuid\"]\n",
-				"ad3baac30bcd3c62577e9ef239c38b9c", 50);
+				"\"ad3baac30bcd3c62577e9ef239c38b9c\"", 50);
 
 		CouchDbCommunicator communicator = new CouchDbCommunicator(
 				new PrintStream(mock), mock.getInputStream());
-		String id = communicator.getId();
+		String id = communicator.getUuid();
 
 		assertEquals("ad3baac30bcd3c62577e9ef239c38b9c", id);
+	}
+
+	@Test
+	public void testMissingKey() throws Exception {
+		CouchDbMock mock = new CouchDbMock(
+				"[\"get\", \"couchdb\", \"uuid\"]\n", "null", 50);
+
+		CouchDbCommunicator communicator = new CouchDbCommunicator(
+				new PrintStream(mock), mock.getInputStream());
+		String id = communicator.getUuid();
+
+		assertNull(id);
 	}
 
 	@Test
@@ -38,12 +50,12 @@ public class CouchDbCommunicatorTest extends TestCase {
 			public void run() {
 				try {
 					CouchDbMock mock = new CouchDbMock(
-							"[\"get\", \"couchdb\", \"uuid\"]\n",
-							"ad3baac30bcd3c62577e9ef239c38b9c", 10000);
+							"[\"get\", \"couchdb\", \"uuid\"]\n", "something",
+							10000);
 
 					CouchDbCommunicator communicator = new CouchDbCommunicator(
 							new PrintStream(mock), mock.getInputStream());
-					communicator.getId();
+					communicator.getUuid();
 					gotAnswer.set(true);
 				} catch (IOException e) {
 					System.err.println("Exception during test: " + e);
