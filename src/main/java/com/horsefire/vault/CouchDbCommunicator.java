@@ -7,8 +7,6 @@ import java.io.PrintStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.horsefire.vault.util.TimeoutInputStream;
-
 public class CouchDbCommunicator {
 
 	private static final Logger LOG = LoggerFactory
@@ -19,7 +17,7 @@ public class CouchDbCommunicator {
 
 	public CouchDbCommunicator(PrintStream out, InputStream in) {
 		m_out = out;
-		m_in = new TimeoutInputStream(in, 1000);
+		m_in = in;
 	}
 
 	private String get(String category, String key) throws IOException {

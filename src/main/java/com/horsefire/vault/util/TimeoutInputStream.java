@@ -29,6 +29,7 @@ public class TimeoutInputStream extends InputStream {
 					while (true) {
 						int result = delegate.read();
 						if (result == -1) {
+							LOG.info("InputStream closed");
 							break;
 						}
 						m_buffer.put(Integer.valueOf(result));
@@ -75,5 +76,10 @@ public class TimeoutInputStream extends InputStream {
 	@Override
 	public void close() throws IOException {
 		m_thread.interrupt();
+	}
+
+	public boolean isStreamOpen() {
+		Integer peek = m_buffer.peek();
+		return peek == null || peek.intValue() != -1;
 	}
 }

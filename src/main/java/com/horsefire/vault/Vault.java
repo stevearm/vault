@@ -11,6 +11,7 @@ import com.beust.jcommander.ParameterException;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.horsefire.vault.util.TimeoutInputStream;
 
 public class Vault {
 
@@ -50,6 +51,8 @@ public class Vault {
 
 		String host = m_options.dbHost;
 		String id = m_options.id;
+		long quittingTime = System.currentTimeMillis() + (2 * 60 * 1000);
+		Quitter quitter;
 
 		if (!m_options.sentinel) {
 			if (host == null) {
@@ -60,11 +63,15 @@ public class Vault {
 				System.out.println("Must specify an id");
 				return;
 			}
+
+			quitter = new Quitter(quittingTime);
 		} else {
 			PrintStream externalStdout = System.out;
 			CouchDbLogger.install();
+			TimeoutInputStream newStdIn = new TimeoutInputStream(System.in,
+					1000);
 			CouchDbCommunicator communicator = new CouchDbCommunicator(
-					externalStdout, System.in);
+					externalStdout, newStdIn);
 
 			String ip = communicator.getBindAddress();
 			String port = communicator.getPort();
@@ -79,9 +86,11 @@ public class Vault {
 				System.out.println("Error getting uuid");
 				throw new IOException("Error getting uuid");
 			}
+
+			quitter = new Quitter(quittingTime, newStdIn);
 		}
 
-		m_sentinelFactory.create(host, id).run();
+		m_sentinelFactory.create(host, id, quitter).run();
 	}
 
 	public static void main(String[] args) throws Exception {
