@@ -51,7 +51,8 @@ public class Vault {
 
 		String host = m_options.dbHost;
 		String id = m_options.id;
-		long quittingTime = System.currentTimeMillis() + (2 * 60 * 1000);
+		long quittingTime = System.currentTimeMillis()
+				+ (m_options.runtimeSeconds * 1000);
 		Quitter quitter;
 
 		if (!m_options.sentinel) {

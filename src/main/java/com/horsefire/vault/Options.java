@@ -16,7 +16,7 @@ public class Options {
 	@Parameter(names = { "--exportLogConfig" }, description = "Write out a sample log config")
 	public boolean exportLogConfig = false;
 
-	@Parameter(names = { "--logConfigFile" }, description = "Log config file")
+	@Parameter(names = { "--logConfigFile" }, description = "Log config file (export to, and read from)")
 	public String logConfigFile = "vault.xml";
 
 	@Parameter(names = { "--dbHost" }, description = "Database host")
@@ -24,6 +24,9 @@ public class Options {
 
 	@Parameter(names = { "--id" }, description = "The id of this vault")
 	public String id;
+
+	@Parameter(names = { "--runtime" }, description = "Quit vault after X seconds")
+	public int runtimeSeconds = 30 * 60;
 
 	@Parameter(names = { "--debug" }, description = "Use when developing")
 	public boolean debug = false;
