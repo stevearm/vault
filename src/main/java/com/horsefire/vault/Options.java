@@ -20,7 +20,10 @@ public class Options {
 	public String logConfigFile = "vault.xml";
 
 	@Parameter(names = { "--dbHost" }, description = "Database host")
-	public String dbHost = "127.0.0.1:5984";
+	public String dbHost = "127.0.0.1";
+
+	@Parameter(names = { "--dbPort" }, description = "Database port")
+	public int dbPort = 5984;
 
 	@Parameter(names = { "--id" }, description = "The id of this vault")
 	public String id;

@@ -9,7 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 public class Sentinel {
 
 	public static interface Factory {
-		Sentinel create(@Assisted("host") String host,
+		Sentinel create(@Assisted("ip") String ip, int port,
 				@Assisted("id") String id, Quitter quitter);
 	}
 
@@ -21,10 +21,11 @@ public class Sentinel {
 	private final Quitter m_quitter;
 
 	@Inject
-	public Sentinel(Options options, @Assisted("host") String host,
-			@Assisted("id") String id, @Assisted Quitter quitter) {
+	public Sentinel(Options options, @Assisted("ip") String ip,
+			@Assisted int port, @Assisted("id") String id,
+			@Assisted Quitter quitter) {
 		m_options = options;
-		m_host = host;
+		m_host = ip + ":" + port;
 		m_id = id;
 		m_quitter = quitter;
 	}

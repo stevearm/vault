@@ -50,16 +50,13 @@ public class Vault {
 		}
 
 		String host = m_options.dbHost;
+		int port = m_options.dbPort;
 		String id = m_options.id;
 		long quittingTime = System.currentTimeMillis()
 				+ (m_options.runtimeSeconds * 1000);
 		Quitter quitter;
 
 		if (!m_options.sentinel) {
-			if (host == null) {
-				System.out.println("Must specify a host");
-				return;
-			}
 			if (id == null) {
 				System.out.println("Must specify an id");
 				return;
@@ -74,13 +71,18 @@ public class Vault {
 			CouchDbCommunicator communicator = new CouchDbCommunicator(
 					externalStdout, newStdIn);
 
-			String ip = communicator.getBindAddress();
-			String port = communicator.getPort();
-			if (ip == null || port == null) {
+			host = communicator.getBindAddress();
+			String portString = communicator.getPort();
+			if (host == null || portString == null) {
 				System.out.println("Error getting ip and port");
 				throw new IOException("Error getting ip and port");
 			}
-			host = ip + ":" + port;
+			try {
+				port = Integer.parseInt(portString);
+			} catch (NumberFormatException e) {
+				System.out.println("Port is not a parsable int");
+				throw new IOException("Port is not a parsable int");
+			}
 
 			id = communicator.getUuid();
 			if (id == null) {
@@ -91,7 +93,7 @@ public class Vault {
 			quitter = new Quitter(quittingTime, newStdIn);
 		}
 
-		m_sentinelFactory.create(host, id, quitter).run();
+		m_sentinelFactory.create(host, port, id, quitter).run();
 	}
 
 	public static void main(String[] args) throws Exception {
