@@ -10,21 +10,71 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.horsefire.vault.util.TimeoutInputStream;
 
 public class Vault {
 
-	private final Options m_options;
-	private final Sentinel.Factory m_sentinelFactory;
+	public static void main(String[] args) throws Exception {
+		Options options = getOptions(args);
+		if (options == null) {
+			return;
+		}
 
-	@Inject
-	public Vault(Options options, Sentinel.Factory sentinelFactory) {
-		m_options = options;
-		m_sentinelFactory = sentinelFactory;
+		File externalLogConfig = new File(options.logConfigFile);
+		if (options.exportLogConfig) {
+			exportLogConfig(externalLogConfig);
+			return;
+		}
+		if (externalLogConfig.isFile()) {
+			System.setProperty("logback.configurationFile",
+					externalLogConfig.getAbsolutePath());
+		}
+
+		TimeoutInputStream fixStdIo = null;
+		if (options.sentinel) {
+			fixStdIo = fixStdIo(options);
+		}
+
+		if (missingArguments(options)) {
+			return;
+		}
+
+		Quitter quitter = new Quitter(options.runtimeSeconds * 1000, fixStdIo);
+
+		Injector injector = Guice.createInjector(new VaultModule(
+				options.dbHost, options.dbPort, options.id, options.debug,
+				quitter));
+		injector.getInstance(Sentinel.class).run();
 	}
 
-	private void exportLogConfig(File externalLogConfig) throws IOException {
+	private static Options getOptions(String[] args) {
+		try {
+			Options options = new Options();
+			JCommander jc = new JCommander(options, args);
+			jc.setProgramName("java -jar filecabinet.jar");
+
+			if (options.help) {
+				jc.usage();
+				return null;
+			}
+
+			if (options.version) {
+				String version = Vault.class.getPackage()
+						.getImplementationVersion();
+				System.out.println("Vault " + version);
+				return null;
+			}
+			return options;
+		} catch (ParameterException e) {
+			System.err.println(e.getMessage());
+			System.err.println("Use --help to display usage");
+			return null;
+		}
+	}
+
+	private static void exportLogConfig(File externalLogConfig)
+			throws IOException {
 		InputStream in = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream("logback.xml");
 		FileOutputStream out = new FileOutputStream(externalLogConfig);
@@ -36,90 +86,31 @@ public class Vault {
 		}
 	}
 
-	public void run() throws IOException {
-		File externalLogConfig = new File(m_options.logConfigFile);
+	private static TimeoutInputStream fixStdIo(Options options)
+			throws IOException {
+		PrintStream externalStdout = System.out;
+		CouchDbLogger.install();
+		TimeoutInputStream newStdIn = new TimeoutInputStream(System.in, 1000);
+		CouchDbCommunicator communicator = new CouchDbCommunicator(
+				externalStdout, newStdIn);
 
-		if (m_options.exportLogConfig) {
-			exportLogConfig(externalLogConfig);
-			return;
-		}
+		options.dbHost = communicator.getBindAddress();
+		options.dbPort = Integer.parseInt(communicator.getPort());
 
-		if (externalLogConfig.isFile()) {
-			System.setProperty("logback.configurationFile",
-					externalLogConfig.getAbsolutePath());
-		}
+		options.id = communicator.getUuid();
 
-		String host = m_options.dbHost;
-		int port = m_options.dbPort;
-		String id = m_options.id;
-		long quittingTime = System.currentTimeMillis()
-				+ (m_options.runtimeSeconds * 1000);
-		Quitter quitter;
-
-		if (!m_options.sentinel) {
-			if (id == null) {
-				System.out.println("Must specify an id");
-				return;
-			}
-
-			quitter = new Quitter(quittingTime);
-		} else {
-			PrintStream externalStdout = System.out;
-			CouchDbLogger.install();
-			TimeoutInputStream newStdIn = new TimeoutInputStream(System.in,
-					1000);
-			CouchDbCommunicator communicator = new CouchDbCommunicator(
-					externalStdout, newStdIn);
-
-			host = communicator.getBindAddress();
-			String portString = communicator.getPort();
-			if (host == null || portString == null) {
-				System.out.println("Error getting ip and port");
-				throw new IOException("Error getting ip and port");
-			}
-			try {
-				port = Integer.parseInt(portString);
-			} catch (NumberFormatException e) {
-				System.out.println("Port is not a parsable int");
-				throw new IOException("Port is not a parsable int");
-			}
-
-			id = communicator.getUuid();
-			if (id == null) {
-				System.out.println("Error getting uuid");
-				throw new IOException("Error getting uuid");
-			}
-
-			quitter = new Quitter(quittingTime, newStdIn);
-		}
-
-		m_sentinelFactory.create(host, port, id, quitter).run();
+		return newStdIn;
 	}
 
-	public static void main(String[] args) throws Exception {
-		Options options = new Options();
-		try {
-			JCommander jc = new JCommander(options, args);
-			jc.setProgramName("java -jar filecabinet.jar");
-
-			if (options.help) {
-				jc.usage();
-				return;
-			}
-
-			if (options.version) {
-				String version = Vault.class.getPackage()
-						.getImplementationVersion();
-				System.out.println("Vault " + version);
-				return;
-			}
-		} catch (ParameterException e) {
-			System.err.println(e.getMessage());
-			System.err.println("Use --help to display usage");
-			return;
+	private static boolean missingArguments(Options options) {
+		if (options.dbHost == null) {
+			System.out.println("Missing dbHost");
+			return true;
 		}
-
-		Guice.createInjector(new VaultModule(options)).getInstance(Vault.class)
-				.run();
+		if (options.id == null) {
+			System.out.println("Missing id");
+			return true;
+		}
+		return false;
 	}
 }

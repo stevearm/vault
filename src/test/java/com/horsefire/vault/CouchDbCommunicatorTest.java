@@ -8,7 +8,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 
@@ -39,40 +38,6 @@ public class CouchDbCommunicatorTest extends TestCase {
 		String id = communicator.getUuid();
 
 		assertNull(id);
-	}
-
-	@Test
-	public void testBlockingForever() throws Exception {
-		final AtomicBoolean threadRunning = new AtomicBoolean(true);
-		final AtomicBoolean gotAnswer = new AtomicBoolean(false);
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
-				try {
-					CouchDbMock mock = new CouchDbMock(
-							"[\"get\", \"couchdb\", \"uuid\"]\n", "something",
-							10000);
-
-					CouchDbCommunicator communicator = new CouchDbCommunicator(
-							new PrintStream(mock), mock.getInputStream());
-					communicator.getUuid();
-					gotAnswer.set(true);
-				} catch (IOException e) {
-					System.err.println("Exception during test: " + e);
-				}
-				threadRunning.set(false);
-			}
-		};
-		thread.start();
-
-		Thread.sleep(5000);
-		if (threadRunning.get()) {
-			thread.interrupt();
-			fail("Thread timeout failed, still blocked");
-		}
-		if (gotAnswer.get()) {
-			fail("Should not have gotten an answer, though have thrown exception");
-		}
 	}
 
 	private class CouchDbMock extends OutputStream {

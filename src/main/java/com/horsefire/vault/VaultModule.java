@@ -1,20 +1,42 @@
 package com.horsefire.vault;
 
+import org.lightcouch.CouchDbClient;
+
 import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Names;
 
 public class VaultModule extends AbstractModule {
 
-	private final Options m_options;
+	private final String m_dbHost;
+	private final Integer m_dbPort;
+	private final String m_id;
+	private final Boolean m_isDebug;
+	private final Quitter m_quitter;
 
-	public VaultModule(Options options) {
-		m_options = options;
+	public VaultModule(String host, int port, String id, boolean isDebug,
+			Quitter quitter) {
+		m_dbHost = host;
+		m_dbPort = Integer.valueOf(port);
+		m_id = id;
+		m_isDebug = Boolean.valueOf(isDebug);
+		m_quitter = quitter;
+	}
+
+	private void bindMemberConstants() {
+		bind(String.class).annotatedWith(Names.named("dbHost")).toInstance(
+				m_dbHost);
+		bind(Integer.class).annotatedWith(Names.named("dbPort")).toInstance(
+				m_dbPort);
+		bind(String.class).annotatedWith(Names.named("id")).toInstance(m_id);
+		bind(Boolean.class).annotatedWith(Names.named("isDebug")).toInstance(
+				m_isDebug);
+		bind(Quitter.class).toInstance(m_quitter);
 	}
 
 	@Override
 	protected void configure() {
-		bind(Options.class).toInstance(m_options);
-		install(new FactoryModuleBuilder().implement(Sentinel.class,
-				Sentinel.class).build(Sentinel.Factory.class));
+		bindMemberConstants();
+
+		bind(CouchDbClient.class).toProvider(CouchDbClientFactory.class);
 	}
 }
