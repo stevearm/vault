@@ -22,7 +22,8 @@ public class TimeoutInputStream extends InputStream {
 	public TimeoutInputStream(final InputStream delegate, int timeout) {
 		m_timeout = timeout;
 
-		m_thread = new Thread() {
+		m_thread = new Thread("TimeoutInputStream-inner-"
+				+ System.identityHashCode(this)) {
 			@Override
 			public void run() {
 				try {
