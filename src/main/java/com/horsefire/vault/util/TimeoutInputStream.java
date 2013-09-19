@@ -14,6 +14,7 @@ public class TimeoutInputStream extends InputStream {
 			.getLogger(TimeoutInputStream.class);
 
 	private final int m_timeout;
+	private final InputStream m_delegate;
 
 	private final BlockingQueue<Integer> m_buffer = new ArrayBlockingQueue<Integer>(
 			16);
@@ -21,6 +22,7 @@ public class TimeoutInputStream extends InputStream {
 
 	public TimeoutInputStream(final InputStream delegate, int timeout) {
 		m_timeout = timeout;
+		m_delegate = delegate;
 
 		m_thread = new Thread("TimeoutInputStream-inner-"
 				+ System.identityHashCode(this)) {
@@ -77,6 +79,7 @@ public class TimeoutInputStream extends InputStream {
 	@Override
 	public void close() throws IOException {
 		m_thread.interrupt();
+		m_delegate.close();
 	}
 
 	public boolean isStreamOpen() {
