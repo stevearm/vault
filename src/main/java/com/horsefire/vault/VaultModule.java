@@ -2,6 +2,7 @@ package com.horsefire.vault;
 
 import org.lightcouch.CouchDbClient;
 
+import com.google.gson.Gson;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
@@ -38,5 +39,6 @@ public class VaultModule extends AbstractModule {
 		bindMemberConstants();
 
 		bind(CouchDbClient.class).toProvider(CouchDbClientFactory.class);
+		bind(Gson.class).toProvider(GsonProvider.class);
 	}
 }
