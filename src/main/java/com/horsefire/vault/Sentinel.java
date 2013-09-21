@@ -7,9 +7,11 @@ import org.lightcouch.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.horsefire.vault.VaultDocument.SyncTarget;
 
 public class Sentinel {
 
@@ -35,9 +37,13 @@ public class Sentinel {
 		LOG.info("Starting sentinel");
 		JsonObject signature = m_simpleClient.get("/");
 		while (!m_quitter.shouldQuit()) {
-			CouchDbClient client = m_factory.get();
+			CouchDbClient client = m_factory.get("vault");
 			VaultDocument doc = getDoc(client, signature);
-			LOG.info("Got json object: {}", doc.signature);
+
+			for (SyncTarget syncTarget : doc.sync) {
+				sync(client, syncTarget);
+			}
+
 			client.shutdown();
 
 			try {
@@ -62,5 +68,9 @@ public class Sentinel {
 			doc._rev = update.getRev();
 		}
 		return doc;
+	}
+
+	private void sync(CouchDbClient client, SyncTarget target) {
+		LOG.debug("Sync to {}", new Gson().toJson(target));
 	}
 }

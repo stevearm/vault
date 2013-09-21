@@ -3,27 +3,33 @@ package com.horsefire.vault;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-public class CouchDbClientFactory implements Provider<CouchDbClient> {
+public class CouchDbClientFactory {
 
 	private final String m_dbHost;
 	private final int m_dbPort;
+	private final Provider<GsonBuilder> m_gsonBuilderProvider;
 
 	@Inject
 	public CouchDbClientFactory(@Named("dbHost") String dbHost,
-			@Named("dbPort") Integer dbPort) {
+			@Named("dbPort") Integer dbPort,
+			Provider<GsonBuilder> gsonBuilderProvider) {
 		m_dbHost = dbHost;
 		m_dbPort = dbPort.intValue();
+		m_gsonBuilderProvider = gsonBuilderProvider;
 	}
 
-	public CouchDbClient get() {
+	public CouchDbClient get(String dbName) {
 		CouchDbProperties properties = new CouchDbProperties()
-				.setDbName("vault").setCreateDbIfNotExist(false)
+				.setDbName(dbName).setCreateDbIfNotExist(false)
 				.setProtocol("http").setHost(m_dbHost).setPort(m_dbPort)
 				.setMaxConnections(5).setConnectionTimeout(500);
-		return new CouchDbClient(properties);
+		CouchDbClient client = new CouchDbClient(properties);
+		client.setGsonBuilder(m_gsonBuilderProvider.get());
+		return client;
 	}
 }
