@@ -10,7 +10,7 @@
 	<logger name="org.lightcouch" level="WARN" />
 	<logger name="org.apache.http" level="WARN" />
 
-	<root level="DEBUG">
+	<root level="ALL">
 		<appender-ref ref="CONSOLE" />
 	</root>
 </configuration>

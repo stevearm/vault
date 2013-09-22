@@ -10,6 +10,8 @@ public class VaultDocument {
 	public String _id;
 	public String _rev;
 	public String name;
+	public String host;
+	public Integer port;
 	public JsonObject signature;
 	public List<SyncTarget> sync;
 
