@@ -25,6 +25,9 @@ public class Options {
 	@Parameter(names = { "--dbPort" }, description = "Database port")
 	public int dbPort = 5984;
 
+	@Parameter(names = { "--dbPassword" }, description = "Password for 'vaultsentinel' account, if that account exists")
+	public String dbPassword;
+
 	@Parameter(names = { "--id" }, description = "The id of this vault")
 	public String id;
 

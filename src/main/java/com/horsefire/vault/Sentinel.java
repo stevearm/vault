@@ -93,30 +93,35 @@ public class Sentinel {
 			return;
 		}
 
-		String targetUrlBase = "http://" + host + ":" + port + "/";
-		sync(couchClient, "vault", targetUrlBase + "vault");
-		sync(couchClient, targetUrlBase + "vault", "vault");
 		for (DbTarget dbTarget : target.dbs) {
+			String remote = buildUrl(targetVault, dbTarget.remote);
+
 			switch (dbTarget.direction) {
 			case BOTH:
-				sync(couchClient, targetUrlBase + dbTarget.remote,
-						dbTarget.local);
+				sync(couchClient, remote, dbTarget.local);
 			case PUSH:
-				sync(couchClient, dbTarget.local, targetUrlBase
-						+ dbTarget.remote);
+				sync(couchClient, dbTarget.local, remote);
 				break;
 			case PULL:
-				sync(couchClient, targetUrlBase + dbTarget.remote,
-						dbTarget.local);
+				sync(couchClient, remote, dbTarget.local);
 				break;
 			}
 		}
 	}
 
+	private String buildUrl(VaultDocument vault, String db) {
+		String credentials = "";
+		if (vault.password != null) {
+			credentials = VaultDocument.USERNAME + ":" + vault.password + "@";
+		}
+		return "http://" + credentials + vault.host + ":" + vault.port + "/"
+				+ db;
+	}
+
 	private void sync(CouchDbClient client, String from, String to) {
 		LOG.trace("Replicating {} -> {}", from, to);
 		ReplicationResult result = client.replication().source(from).target(to)
-				.createTarget(true).trigger();
+				.trigger();
 		if (!result.isOk()) {
 			LOG.warn("Something went wrong during sync from {} to {}", from, to);
 		}

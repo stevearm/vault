@@ -43,8 +43,8 @@ public class Vault {
 		Quitter quitter = new Quitter(options.runtimeSeconds * 1000, fixStdIo);
 
 		Injector injector = Guice.createInjector(new VaultModule(
-				options.dbHost, options.dbPort, options.id, options.debug,
-				quitter));
+				options.dbHost, options.dbPort, options.dbPassword, options.id,
+				options.debug, quitter));
 		injector.getInstance(Sentinel.class).run();
 	}
 
