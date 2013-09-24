@@ -41,25 +41,38 @@ public class Sentinel {
 
 	public void run() throws IOException {
 		LOG.info("Starting sentinel");
+		long lastSync = 0;
+		long syncFrequency = 0;
 		while (!m_quitter.shouldQuit()) {
-			CouchDbClient client = m_factory.get("vault");
+			long timestamp = System.currentTimeMillis();
+			if ((lastSync + syncFrequency) < timestamp) {
+				LOG.info("Starting sync");
+				lastSync = timestamp;
 
-			JsonObject signature = m_simpleClient.get(m_dbHost, m_dbPort, "/");
-			VaultDocument doc = getDoc(client, signature);
+				try {
+					CouchDbClient client = m_factory.get("vault");
+					JsonObject signature = m_simpleClient.get(m_dbHost,
+							m_dbPort, "/");
+					VaultDocument doc = getDoc(client, signature);
+					syncFrequency = doc.sync_frequency_seconds * 1000;
 
-			LOG.debug("Syncing to {} remote vaults", doc.sync.size());
-			for (SyncTarget syncTarget : doc.sync) {
-				sync(client, syncTarget);
+					LOG.debug("Syncing to {} remote vaults", doc.sync.size());
+					for (SyncTarget syncTarget : doc.sync) {
+						sync(client, syncTarget);
+					}
+
+					client.shutdown();
+					LOG.info("Finished sync");
+				} catch (IOException e) {
+					LOG.warn("Exception during sync. Skipping", e);
+				}
 			}
-
-			client.shutdown();
 
 			try {
 				Thread.sleep(SLEEP_TIME_MS);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-			break;
 		}
 		LOG.info("Shutting down sentinel");
 	}

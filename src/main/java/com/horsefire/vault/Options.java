@@ -32,7 +32,7 @@ public class Options {
 	public String id;
 
 	@Parameter(names = { "--runtime" }, description = "Quit vault after X seconds")
-	public int runtimeSeconds = 30 * 60;
+	public int runtimeSeconds = 60 * 60;
 
 	@Parameter(names = { "--debug" }, description = "Use when developing")
 	public boolean debug = false;

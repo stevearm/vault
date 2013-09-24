@@ -17,6 +17,7 @@ public class VaultDocument {
 	public String password;
 	public JsonObject signature;
 	public List<SyncTarget> sync;
+	public int sync_frequency_seconds;
 
 	public static class SyncTarget {
 		public String id;
