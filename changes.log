@@ -1,0 +1,13 @@
+# To do
+* Figure out a better way to install
+* Figure out a way to add new vaults (discovery and config editing)
+* Figure out a way to install new vault-apps
+* Should somehow run the workers for installed apps
+* Should run a web server on a fixed port (vault port)
+* Web server should show links to all installed apps
+* Web server should receive triggers (through CORS support) to run a given worker
+
+# 1.0 - 2013-09-24
+* Run sentinel from cron, or from couch.ini's os_daemon section
+* If run by CouchDB, will read ip/port from stdio
+* Will connect to CouchDB, read sync config, and trigger replication
