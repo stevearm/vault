@@ -11,8 +11,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.horsefire.vault.VaultDocument.DbTarget;
-import com.horsefire.vault.VaultDocument.SyncTarget;
+import com.horsefire.vault.couch.VaultDocument;
+import com.horsefire.vault.couch.VaultDocument.DbTarget;
+import com.horsefire.vault.couch.VaultDocument.SyncTarget;
 
 public class Sentinel {
 
@@ -58,7 +59,7 @@ public class Sentinel {
 
 					LOG.debug("Syncing to {} remote vaults", doc.sync.size());
 					for (SyncTarget syncTarget : doc.sync) {
-						sync(client, syncTarget);
+						// sync(client, syncTarget);
 					}
 
 					client.shutdown();
@@ -124,8 +125,8 @@ public class Sentinel {
 
 	private String buildUrl(VaultDocument vault, String db) {
 		String credentials = "";
-		if (vault.password != null) {
-			credentials = VaultDocument.USERNAME + ":" + vault.password + "@";
+		if (vault.username != null) {
+			credentials = vault.username + ":" + vault.password + "@";
 		}
 		return "http://" + credentials + vault.host + ":" + vault.port + "/"
 				+ db;

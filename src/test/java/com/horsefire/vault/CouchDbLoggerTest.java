@@ -7,6 +7,8 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import com.horsefire.vault.couch.CouchDbLogger;
+
 public class CouchDbLoggerTest extends TestCase {
 
 	private PrintStream m_testStream;

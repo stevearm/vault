@@ -11,9 +11,11 @@ import com.beust.jcommander.ParameterException;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.horsefire.vault.couch.CouchDbCommunicator;
+import com.horsefire.vault.couch.CouchDbLogger;
 import com.horsefire.vault.util.TimeoutInputStream;
 
-public class Vault {
+public class Bootstrap {
 
 	public static void main(String[] args) throws Exception {
 		Options options = getOptions(args);
@@ -42,9 +44,9 @@ public class Vault {
 
 		Quitter quitter = new Quitter(options.runtimeSeconds * 1000, fixStdIo);
 
-		Injector injector = Guice.createInjector(new VaultModule(
-				options.dbHost, options.dbPort, options.dbPassword, options.id,
-				options.debug, quitter));
+		Injector injector = Guice.createInjector(new GuiceModule(
+				options.dbHost, options.dbPort, options.dbUsername,
+				options.dbPassword, options.id, quitter));
 		injector.getInstance(Sentinel.class).run();
 	}
 
@@ -60,7 +62,7 @@ public class Vault {
 			}
 
 			if (options.version) {
-				String version = Vault.class.getPackage()
+				String version = Bootstrap.class.getPackage()
 						.getImplementationVersion();
 				System.out.println("Vault " + version);
 				return null;
@@ -96,6 +98,8 @@ public class Vault {
 
 		options.dbHost = communicator.getBindAddress();
 		options.dbPort = Integer.parseInt(communicator.getPort());
+		options.dbUsername = communicator.getUsername();
+		options.dbPassword = communicator.getPassword();
 
 		options.id = communicator.getUuid();
 

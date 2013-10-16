@@ -1,4 +1,4 @@
-package com.horsefire.vault;
+package com.horsefire.vault.couch;
 
 import java.util.List;
 
@@ -7,13 +7,12 @@ import com.google.gson.annotations.SerializedName;
 
 public class VaultDocument {
 
-	public static final String USERNAME = "vaultsentinel";
-
 	public String _id;
 	public String _rev;
 	public String name;
 	public String host;
 	public Integer port;
+	public String username;
 	public String password;
 	public JsonObject signature;
 	public List<SyncTarget> sync;

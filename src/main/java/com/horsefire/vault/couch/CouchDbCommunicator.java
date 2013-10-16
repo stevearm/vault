@@ -1,4 +1,4 @@
-package com.horsefire.vault;
+package com.horsefire.vault.couch;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,5 +60,13 @@ public class CouchDbCommunicator {
 
 	public String getUuid() throws IOException {
 		return get("couchdb", "uuid");
+	}
+
+	public String getUsername() throws IOException {
+		return get("couchdb", "vault_user");
+	}
+
+	public String getPassword() throws IOException {
+		return get("couchdb", "vault_pass");
 	}
 }

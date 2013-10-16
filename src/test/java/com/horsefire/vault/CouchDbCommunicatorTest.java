@@ -13,6 +13,8 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import com.horsefire.vault.couch.CouchDbCommunicator;
+
 public class CouchDbCommunicatorTest extends TestCase {
 
 	@Test

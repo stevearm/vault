@@ -12,6 +12,7 @@ public class CouchDbClientFactory {
 
 	private final String m_dbHost;
 	private final int m_dbPort;
+	private final String m_dbUsername;
 	private final String m_dbPassword;
 	private final Provider<GsonBuilder> m_gsonBuilderProvider;
 
@@ -19,9 +20,11 @@ public class CouchDbClientFactory {
 	public CouchDbClientFactory(@Named("dbHost") String dbHost,
 			@Named("dbPort") Integer dbPort,
 			@Named("dbPassword") String dbPassword,
+			@Named("dbUsername") String dbUsername,
 			Provider<GsonBuilder> gsonBuilderProvider) {
 		m_dbHost = dbHost;
 		m_dbPort = dbPort.intValue();
+		m_dbUsername = dbUsername;
 		m_dbPassword = dbPassword;
 		m_gsonBuilderProvider = gsonBuilderProvider;
 	}
@@ -31,9 +34,8 @@ public class CouchDbClientFactory {
 				.setDbName(dbName).setCreateDbIfNotExist(false)
 				.setProtocol("http").setHost(m_dbHost).setPort(m_dbPort)
 				.setMaxConnections(5).setConnectionTimeout(500);
-		if (!m_dbPassword.isEmpty()) {
-			properties.setUsername(VaultDocument.USERNAME).setPassword(
-					m_dbPassword);
+		if (!m_dbUsername.isEmpty()) {
+			properties.setUsername(m_dbUsername).setPassword(m_dbPassword);
 		}
 		CouchDbClient client = new CouchDbClient(properties);
 		client.setGsonBuilder(m_gsonBuilderProvider.get());

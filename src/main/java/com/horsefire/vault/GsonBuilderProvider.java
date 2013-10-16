@@ -13,6 +13,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.inject.Provider;
+import com.horsefire.vault.couch.VaultDocument;
 
 public class GsonBuilderProvider implements Provider<GsonBuilder> {
 

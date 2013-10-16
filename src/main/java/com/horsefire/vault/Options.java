@@ -25,7 +25,10 @@ public class Options {
 	@Parameter(names = { "--dbPort" }, description = "Database port")
 	public int dbPort = 5984;
 
-	@Parameter(names = { "--dbPassword" }, description = "Password for 'vaultsentinel' account, if that account exists")
+	@Parameter(names = { "--dbUsername" }, description = "Username for connecting to vault")
+	public String dbUsername;
+
+	@Parameter(names = { "--dbPassword" }, description = "Password for connecting to vault")
 	public String dbPassword;
 
 	@Parameter(names = { "--id" }, description = "The id of this vault")
@@ -34,6 +37,6 @@ public class Options {
 	@Parameter(names = { "--runtime" }, description = "Quit vault after X seconds")
 	public int runtimeSeconds = 60 * 60;
 
-	@Parameter(names = { "--debug" }, description = "Use when developing")
-	public boolean debug = false;
+	@Parameter(names = { "--testing" }, hidden = true)
+	public boolean testing = false;
 }

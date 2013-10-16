@@ -4,22 +4,22 @@ import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-public class VaultModule extends AbstractModule {
+public class GuiceModule extends AbstractModule {
 
 	private final String m_dbHost;
 	private final Integer m_dbPort;
+	private final String m_dbUsername;
 	private final String m_dbPassword;
 	private final String m_id;
-	private final Boolean m_isDebug;
 	private final Quitter m_quitter;
 
-	public VaultModule(String host, int port, String password, String id,
-			boolean isDebug, Quitter quitter) {
+	public GuiceModule(String host, int port, String username, String password,
+			String id, Quitter quitter) {
 		m_dbHost = host;
 		m_dbPort = Integer.valueOf(port);
+		m_dbUsername = username;
 		m_dbPassword = password;
 		m_id = id;
-		m_isDebug = Boolean.valueOf(isDebug);
 		m_quitter = quitter;
 	}
 
@@ -28,11 +28,11 @@ public class VaultModule extends AbstractModule {
 				m_dbHost);
 		bind(Integer.class).annotatedWith(Names.named("dbPort")).toInstance(
 				m_dbPort);
+		bind(String.class).annotatedWith(Names.named("dbUsername")).toInstance(
+				(m_dbUsername == null) ? "" : m_dbUsername);
 		bind(String.class).annotatedWith(Names.named("dbPassword")).toInstance(
 				(m_dbPassword == null) ? "" : m_dbPassword);
 		bind(String.class).annotatedWith(Names.named("id")).toInstance(m_id);
-		bind(Boolean.class).annotatedWith(Names.named("isDebug")).toInstance(
-				m_isDebug);
 		bind(Quitter.class).toInstance(m_quitter);
 	}
 

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.horsefire.vault</groupId>
 	<artifactId>vault</artifactId>
@@ -13,23 +14,12 @@
 	</parent>
 
 	<properties>
-		<jetty.version>9.0.3.v20130506</jetty.version>
 		<guice.version>3.0</guice.version>
 		<slf4j.version>1.7.5</slf4j.version>
 	</properties>
 
 	<dependencies>
 		<!-- Runtime dependencies -->
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-server</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlet</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.lightcouch</groupId>
 			<artifactId>lightcouch</artifactId>
@@ -128,7 +118,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.horsefire.vault.Vault</mainClass>
+							<mainClass>com.horsefire.vault.Bootstrap</mainClass>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>

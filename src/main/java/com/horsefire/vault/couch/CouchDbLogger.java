@@ -1,4 +1,4 @@
-package com.horsefire.vault;
+package com.horsefire.vault.couch;
 
 import java.io.IOException;
 import java.io.OutputStream;
