@@ -18,7 +18,7 @@ import com.horsefire.vault.CouchDbClientFactory;
 import com.horsefire.vault.SimpleHttpClient;
 
 /**
- * Periodically try to sync to all reachable vaults
+ * Service to sync to all reachable vaults
  */
 public class SyncService {
 
@@ -37,36 +37,31 @@ public class SyncService {
 		m_simpleClient = simpleClient;
 	}
 
-	public void run() throws IOException {
+	public void sync() {
 		LOG.info("Starting sync");
-		try {
-			CouchDbClient client = m_factory.get("vault");
-			VaultDocument doc = client.find(VaultDocument.class, m_id);
+		CouchDbClient client = m_factory.get("vault");
+		VaultDocument doc = client.find(VaultDocument.class, m_id);
 
-			List<VaultDocument> remoteVaults = getTargetVaults(client, doc.dbs);
-			LOG.debug("Syncing to {} remote vaults", remoteVaults.size());
-			Collections.sort(remoteVaults, new Comparator<VaultDocument>() {
-				public int compare(VaultDocument o1, VaultDocument o2) {
-					return o1.priority == o2.priority ? 0
-							: (o1.priority < o2.priority ? -1 : 1);
-				}
-			});
-
-			for (VaultDocument syncTarget : remoteVaults) {
-				sync(client, doc.dbs, syncTarget);
+		List<VaultDocument> remoteVaults = getTargetVaults(client, doc.dbs);
+		LOG.debug("Syncing to {} remote vaults", remoteVaults.size());
+		Collections.sort(remoteVaults, new Comparator<VaultDocument>() {
+			public int compare(VaultDocument o1, VaultDocument o2) {
+				return o1.priority == o2.priority ? 0
+						: (o1.priority < o2.priority ? -1 : 1);
 			}
+		});
 
-			client.shutdown();
-			LOG.info("Finished sync");
-		} catch (IOException e) {
-			LOG.warn("Exception during sync. Skipping", e);
+		for (VaultDocument syncTarget : remoteVaults) {
+			sync(client, doc.dbs, syncTarget);
 		}
+
+		client.shutdown();
 		LOG.info("Finished sync");
 	}
 
 	private List<VaultDocument> getTargetVaults(CouchDbClient client,
 			List<String> dbs) {
-		List<VaultDocument> vaults = client.view("type")
+		List<VaultDocument> vaults = client.view("indexes/type")
 				.key(VaultDocument.TYPE).includeDocs(Boolean.TRUE)
 				.query(VaultDocument.class);
 
@@ -74,11 +69,24 @@ public class SyncService {
 			VaultDocument doc = it.next();
 			if (!doc._id.equals(m_id) && doc.host != null
 					&& !doc.host.isEmpty()) {
+				LOG.trace("Comparing my {} to {}'s {}", dbs, doc.name, doc.dbs);
+				boolean common = false;
 				for (String db : dbs) {
 					if (doc.dbs.contains(db)) {
-						continue;
+						common = true;
+						break;
 					}
 				}
+				if (common) {
+					continue;
+				}
+				LOG.trace(
+						"Skipping vault {} because it has no dbs in common with me",
+						doc.name);
+			} else {
+				LOG.trace(
+						"Skipping vault {} because it's me, or it has no host",
+						doc.name);
 			}
 			it.remove();
 		}
@@ -86,17 +94,25 @@ public class SyncService {
 	}
 
 	private void sync(CouchDbClient couchClient, List<String> dbs,
-			VaultDocument target) throws IOException {
+			VaultDocument target) {
 		String host = target.host;
 		Integer port = target.port;
 
-		LOG.debug("Sync to vault {} - {}:{}", new Object[] { target._id, host,
-				port });
-		JsonObject targetSignature = m_simpleClient.get(host, port, "/");
+		LOG.debug("Sync to {} ({}) at {}:{}", target.name, target._id, host,
+				port);
 
-		if (!target.signature.equals(targetSignature)) {
-			LOG.warn("Remote vault {} ({}) does not match signature. Skipping",
-					target.name, target._id);
+		try {
+			JsonObject targetSignature = m_simpleClient.get(host, port, "/");
+			if (!target.signature.equals(targetSignature)) {
+				LOG.warn(
+						"Remote vault {} ({}) does not match signature. Skipping",
+						target.name, target._id);
+				return;
+			}
+		} catch (IOException e) {
+			LOG.warn(
+					"Exception checking signature for remote vault {} ({}). Skipping",
+					target.name, target._id, e);
 			return;
 		}
 
@@ -104,9 +120,7 @@ public class SyncService {
 			if (!target.dbs.contains(db)) {
 				continue;
 			}
-
 			String remote = buildUrl(target, db);
-
 			sync(couchClient, remote, db);
 			sync(couchClient, db, remote);
 		}
@@ -122,7 +136,7 @@ public class SyncService {
 	}
 
 	private void sync(CouchDbClient client, String from, String to) {
-		LOG.trace("Replicating {} -> {}", from, to);
+		LOG.debug("Replicating {} -> {}", from, to);
 		ReplicationResult result = client.replication().source(from).target(to)
 				.trigger();
 		if (!result.isOk()) {
