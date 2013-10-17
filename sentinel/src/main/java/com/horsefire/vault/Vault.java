@@ -15,9 +15,9 @@ import com.horsefire.vault.couch.VaultDocument;
 import com.horsefire.vault.couch.VaultDocument.DbTarget;
 import com.horsefire.vault.couch.VaultDocument.SyncTarget;
 
-public class Sentinel {
+public class Vault {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Sentinel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Vault.class);
 	private static final long SLEEP_TIME_MS = 1000;
 
 	private final CouchDbClientFactory m_factory;
@@ -28,7 +28,7 @@ public class Sentinel {
 	private final SimpleHttpClient m_simpleClient;
 
 	@Inject
-	public Sentinel(CouchDbClientFactory factory,
+	public Vault(CouchDbClientFactory factory,
 			@Named("dbHost") String dbHost, @Named("dbPort") Integer dbPort,
 			@Named("id") String id, Quitter quitter,
 			SimpleHttpClient simpleClient) {
