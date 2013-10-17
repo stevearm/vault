@@ -1,5 +1,5 @@
-/.classpath
-/.project
-/.settings
-/target
-/*.launch
+/sentinel/.classpath
+/sentinel/.project
+/sentinel/.settings
+/sentinel/target
+/sentinel/*.launch

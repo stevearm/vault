@@ -7,27 +7,24 @@ import com.google.gson.annotations.SerializedName;
 
 public class VaultDocument {
 
+	public static final String TYPE = "vault";
+
 	public String _id;
 	public String _rev;
+	@SuppressWarnings("unused")
+	private String type;
+
 	public String name;
+	public int priority;
+	public JsonObject signature;
+
+	// Connection info (only if externally accessible)
 	public String host;
-	public Integer port;
+	public int port;
 	public String username;
 	public String password;
-	public JsonObject signature;
-	public List<SyncTarget> sync;
-	public int sync_frequency_seconds;
 
-	public static class SyncTarget {
-		public String id;
-		public List<DbTarget> dbs;
-	}
-
-	public static class DbTarget {
-		public String local;
-		public String remote;
-		public Direction direction;
-	}
+	public List<String> dbs;
 
 	public enum Direction {
 		@SerializedName("push")
