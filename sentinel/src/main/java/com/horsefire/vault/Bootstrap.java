@@ -47,7 +47,7 @@ public class Bootstrap {
 		Injector injector = Guice.createInjector(new GuiceModule(
 				options.dbHost, options.dbPort, options.dbUsername,
 				options.dbPassword, options.id, quitter));
-		injector.getInstance(Sentinel.class).run();
+		injector.getInstance(Vault.class).run();
 	}
 
 	private static Options getOptions(String[] args) {

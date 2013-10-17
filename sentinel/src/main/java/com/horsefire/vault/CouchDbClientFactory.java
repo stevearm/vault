@@ -19,8 +19,8 @@ public class CouchDbClientFactory {
 	@Inject
 	public CouchDbClientFactory(@Named("dbHost") String dbHost,
 			@Named("dbPort") Integer dbPort,
-			@Named("dbPassword") String dbPassword,
 			@Named("dbUsername") String dbUsername,
+			@Named("dbPassword") String dbPassword,
 			Provider<GsonBuilder> gsonBuilderProvider) {
 		m_dbHost = dbHost;
 		m_dbPort = dbPort.intValue();
