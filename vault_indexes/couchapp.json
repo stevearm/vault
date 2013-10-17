@@ -1,0 +1,4 @@
+{
+	"name" : "Vault Indexes",
+	"description": "Simple indexes for Vault. The UI is in another db, because it must be accessible before login, so it can perform a login"
+}
