@@ -1,0 +1,4 @@
+{
+	"name" : "Vault UI",
+	"description": "Interface for managing your vault. The UI is in a separate db because your vault should be locked down for non-logged-in users, so the ui must be accessible before login, so it can perform a login"
+}
