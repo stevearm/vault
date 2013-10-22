@@ -55,9 +55,11 @@ Vault db entry for each vault
 ** port: int
 
 Vault db entry for each app
-* id: app_id
+* id: random
 * type: app
-* database: database_name
+* name: string
+* db: database_name
+* ui: entry point (if _design/ui/index.html then: "ui/index.html")
 * worker: id (db entry with worker, only if there's a worker)
 
 Worker trigger db entry for each app
