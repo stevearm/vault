@@ -4,14 +4,17 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reportMatcher;
 import static org.easymock.EasyMock.verify;
 import junit.framework.TestCase;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
+import org.easymock.IArgumentMatcher;
 import org.junit.Test;
 
+import com.horsefire.vault.util.CommandExecutionService;
 import com.horsefire.vault.util.HttpService;
 import com.horsefire.vault.util.HttpService.HttpServiceResponse;
 
@@ -59,14 +62,20 @@ public class WorkerExecutionServiceTest extends TestCase {
 						.get(eq("http://myhost:80/mydb/_design/myui/worker.jar")))
 				.andReturn(getResponse).once();
 
-		WorkerExecutionService service = new WorkerExecutionService("myhost",
-				80, null, null, httpServiceMock);
+		CommandExecutionService cmdExecService = createMock(CommandExecutionService.class);
+		expect(
+				cmdExecService.run(eqStringArray(new String[] { "java", "-jar",
+						null, "--db", "mydb", "--host", "myhost", "--port",
+						"80" }))).andStubReturn(0);
 
-		replay(httpServiceMock);
+		WorkerExecutionService service = new WorkerExecutionService("myhost",
+				80, null, null, httpServiceMock, cmdExecService);
+
+		replay(httpServiceMock, cmdExecService);
 		service.runWorker("mydb", "myui");
 		service.runWorker("mydb", "myui");
 		service.runWorker("mydb", "myui");
-		verify(httpServiceMock);
+		verify(httpServiceMock, cmdExecService);
 	}
 
 	private static class TestHeader implements Header {
@@ -89,6 +98,43 @@ public class WorkerExecutionServiceTest extends TestCase {
 
 		public HeaderElement[] getElements() throws ParseException {
 			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static String[] eqStringArray(String[] expected) {
+		reportMatcher(new StringArrayMatcher(expected));
+		return null;
+	}
+
+	private static class StringArrayMatcher implements IArgumentMatcher {
+
+		private final String[] m_expected;
+
+		public StringArrayMatcher(String[] expected) {
+			m_expected = expected;
+		}
+
+		public boolean matches(Object arg) {
+			if (arg instanceof String[]) {
+				String[] actual = (String[]) arg;
+				if (actual.length == m_expected.length) {
+					for (int i = 0; i < actual.length; i++) {
+						if (m_expected[i] != null
+								&& !m_expected[i].equals(actual[i])) {
+							System.out.println("Failed comparison: '"
+									+ m_expected[i] + "' to '" + actual[i]
+									+ "'");
+							return false;
+						}
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public void appendTo(StringBuffer buffer) {
+			buffer.append("StringArrayMatcher");
 		}
 	}
 }
