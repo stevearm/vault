@@ -64,8 +64,9 @@ public class WorkerExecutionService {
 
 	public void runWorker(String db, String ui) throws IOException,
 			InterruptedException {
-		String url = m_baseUrl + "/" + db + "/_design/" + ui + "/worker.jar";
-		String hash = db + "/" + ui;
+		final String url = m_baseUrl + "/" + db + "/_design/" + ui
+				+ "/worker.jar";
+		final String hash = db + "/" + ui;
 		File file = null;
 		synchronized (m_files) {
 			WorkerNode workerNode = m_files.get(hash);
