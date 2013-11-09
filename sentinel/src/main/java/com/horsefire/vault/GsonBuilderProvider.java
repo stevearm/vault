@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joda.time.DateTime;
+
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -21,7 +23,8 @@ public class GsonBuilderProvider implements Provider<GsonBuilder> {
 		return new GsonBuilder().registerTypeAdapter(
 				VaultDocument.Direction.class,
 				new EnumTypeAdapter<VaultDocument.Direction>(
-						VaultDocument.Direction.values()));
+						VaultDocument.Direction.values())).registerTypeAdapter(
+				DateTime.class, new DateTimeTypeConverter());
 	}
 
 	private static final class EnumTypeAdapter<T extends Enum<T>> implements
@@ -60,6 +63,19 @@ public class GsonBuilderProvider implements Provider<GsonBuilder> {
 		@Override
 		public String toString() {
 			return EnumTypeAdapter.class.getSimpleName();
+		}
+	}
+
+	private static class DateTimeTypeConverter implements
+			JsonSerializer<DateTime>, JsonDeserializer<DateTime> {
+		public JsonElement serialize(DateTime src, Type srcType,
+				JsonSerializationContext context) {
+			return new JsonPrimitive(src.toString());
+		}
+
+		public DateTime deserialize(JsonElement json, Type type,
+				JsonDeserializationContext context) throws JsonParseException {
+			return new DateTime(json.getAsString());
 		}
 	}
 }
