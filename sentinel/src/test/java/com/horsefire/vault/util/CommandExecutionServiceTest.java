@@ -18,7 +18,7 @@ public class CommandExecutionServiceTest extends TestCase {
 	@Test
 	public void testExitCodeWorks() throws IOException, InterruptedException {
 		CommandExecutionService service = new CommandExecutionService();
-		int exitCode = service.run(new String[] { "java" });
+		int exitCode = service.run(new String[] { "java", "--fffff" });
 		assertTrue("Java should have exited with a non-zero error code",
 				0 != exitCode);
 	}
