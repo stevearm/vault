@@ -12,6 +12,7 @@ import com.google.inject.name.Named;
 import com.horsefire.vault.TaskLoop.Task;
 import com.horsefire.vault.couch.SyncService;
 import com.horsefire.vault.couch.VaultDocument;
+import com.horsefire.vault.worker.WorkerService;
 
 public class Vault {
 
@@ -24,12 +25,13 @@ public class Vault {
 	private final SimpleHttpClient m_simpleClient;
 	private final SyncService m_syncService;
 	private final TaskLoop m_taskLoop;
+	private final WorkerService m_workerService;
 
 	@Inject
 	public Vault(CouchDbClientFactory factory, @Named("dbHost") String dbHost,
 			@Named("dbPort") Integer dbPort, @Named("id") String id,
 			SimpleHttpClient simpleClient, SyncService syncService,
-			TaskLoop taskLoop) {
+			TaskLoop taskLoop, WorkerService workerService) {
 		m_factory = factory;
 		m_dbHost = dbHost;
 		m_dbPort = dbPort;
@@ -37,6 +39,7 @@ public class Vault {
 		m_simpleClient = simpleClient;
 		m_syncService = syncService;
 		m_taskLoop = taskLoop;
+		m_workerService = workerService;
 	}
 
 	public void run() {
@@ -74,6 +77,16 @@ public class Vault {
 
 			public void run() {
 				m_syncService.sync();
+			}
+		});
+
+		m_taskLoop.addTask(new Task() {
+			public long periodMs() {
+				return 5 * 60 * 1000;
+			}
+
+			public void run() {
+				m_workerService.run();
 			}
 		});
 

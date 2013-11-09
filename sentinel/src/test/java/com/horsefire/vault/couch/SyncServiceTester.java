@@ -7,6 +7,7 @@ import com.google.inject.Provider;
 import com.horsefire.vault.CouchDbClientFactory;
 import com.horsefire.vault.GsonBuilderProvider;
 import com.horsefire.vault.SimpleHttpClient;
+import com.horsefire.vault.util.HttpService;
 
 public class SyncServiceTester {
 
@@ -21,6 +22,7 @@ public class SyncServiceTester {
 		CouchDbClientFactory factory = new CouchDbClientFactory(dbHost, dbPort,
 				dbUsername, dbPassword, gsonBuilderProvider);
 
-		new SyncService(factory, vaultId, new SimpleHttpClient()).sync();
+		new SyncService(factory, vaultId, new SimpleHttpClient(
+				new HttpService())).sync();
 	}
 }
