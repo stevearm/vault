@@ -1,15 +1,16 @@
-package com.horsefire.vault.couch;
+package com.horsefire.couchdb;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-public class CouchDbLogger extends OutputStream {
-
-	public static void install() {
-		PrintStream newStdOut = new PrintStream(new CouchDbLogger(System.out));
-		System.setOut(newStdOut);
-	}
+/**
+ * When being run from CouchDB's os_daemon system in local.ini, all output from
+ * stdout must be formatted properly
+ * 
+ * Must not use logging in this class
+ */
+class CouchDbLogger extends OutputStream {
 
 	private final PrintStream m_delegate;
 	private final StringBuilder m_buffer = new StringBuilder();
@@ -27,7 +28,8 @@ public class CouchDbLogger extends OutputStream {
 			m_buffer.append((char) b);
 			String buffer = m_buffer.toString();
 			if (buffer.endsWith(m_newLine)) {
-				String message = buffer.substring(0, buffer.length() - 2);
+				String message = buffer.substring(0, buffer.length()
+						- m_newLine.length());
 				message = message.replace("\\", "\\\\");
 				message = message.replace("\"", "\\\"");
 				message = message.replace("\n", "\\n");

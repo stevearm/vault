@@ -12,17 +12,18 @@ public class VaultDocument {
 	public String _id;
 	public String _rev;
 	@SuppressWarnings("unused")
-	private String type;
+	private String type = TYPE;
 
 	public String name;
 	public int priority;
 	public JsonObject signature;
 
+	public String username;
+	public String password;
+
 	// Connection info (only if externally accessible)
 	public String host;
 	public int port;
-	public String username;
-	public String password;
 
 	public List<String> dbs;
 

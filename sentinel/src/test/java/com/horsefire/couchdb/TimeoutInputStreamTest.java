@@ -1,4 +1,4 @@
-package com.horsefire.vault;
+package com.horsefire.couchdb;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import com.horsefire.vault.util.TimeoutInputStream;
+import com.horsefire.couchdb.TimeoutInputStream;
 
 public class TimeoutInputStreamTest extends TestCase {
 

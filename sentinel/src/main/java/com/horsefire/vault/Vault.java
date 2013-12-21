@@ -1,95 +1,90 @@
 package com.horsefire.vault;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-import org.lightcouch.CouchDbClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
-import com.google.gson.JsonObject;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.horsefire.vault.TaskLoop.Task;
-import com.horsefire.vault.couch.SyncService;
-import com.horsefire.vault.couch.VaultDocument;
-import com.horsefire.vault.worker.WorkerService;
-
+/**
+ * This is the default main class for the jar, and allows the jar to be run from
+ * the command-line
+ * 
+ * Do not use logging in this class as the logging system needs to be
+ * initialized
+ */
 public class Vault {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Vault.class);
+	public static void main(String[] args) throws Exception {
+		Options options = getOptions(args);
+		if (options == null) {
+			return;
+		}
 
-	private final CouchDbClientFactory m_factory;
-	private final String m_dbHost;
-	private final Integer m_dbPort;
-	private final String m_id;
-	private final SimpleHttpClient m_simpleClient;
-	private final SyncService m_syncService;
-	private final TaskLoop m_taskLoop;
-	private final WorkerService m_workerService;
+		File externalLogConfig = new File(options.logConfigFile);
+		if (options.exportLogConfig) {
+			exportLogConfig(externalLogConfig);
+			return;
+		}
+		if (externalLogConfig.isFile()) {
+			System.setProperty("logback.configurationFile",
+					externalLogConfig.getAbsolutePath());
+		}
 
-	@Inject
-	public Vault(CouchDbClientFactory factory, @Named("dbHost") String dbHost,
-			@Named("dbPort") Integer dbPort, @Named("id") String id,
-			SimpleHttpClient simpleClient, SyncService syncService,
-			TaskLoop taskLoop, WorkerService workerService) {
-		m_factory = factory;
-		m_dbHost = dbHost;
-		m_dbPort = dbPort;
-		m_id = id;
-		m_simpleClient = simpleClient;
-		m_syncService = syncService;
-		m_taskLoop = taskLoop;
-		m_workerService = workerService;
+		final long quittingTime = System.currentTimeMillis()
+				+ (options.runtimeSeconds * 1000);
+		Quitter quitter = new Quitter() {
+			public boolean shouldQuit() {
+				return quittingTime < System.currentTimeMillis();
+			}
+		};
+
+		Injector injector = Guice.createInjector(new GuiceModule(
+				options.dbHost, options.dbPort, options.dbUsername,
+				options.dbPassword, options.id, quitter));
+		injector.getInstance(Sentinel.class).run();
 	}
 
-	public void run() {
-		LOG.info("Starting sentinel");
+	private static Options getOptions(String[] args) {
+		try {
+			Options options = new Options();
+			JCommander jc = new JCommander(options, args);
+			jc.setProgramName("java -jar filecabinet.jar");
 
-		m_taskLoop.addTask(new Task() {
-			public long periodMs() {
-				return 24 * 60 * 60 * 1000;
+			if (options.help) {
+				jc.usage();
+				return null;
 			}
 
-			public void run() {
-				try {
-					JsonObject signature = m_simpleClient.get(m_dbHost,
-							m_dbPort, "/");
-					CouchDbClient client = m_factory.get("vault");
-					VaultDocument doc = client.find(VaultDocument.class, m_id);
-					if (!signature.equals(doc.signature)) {
-						LOG.info(
-								"Expected signature of {} but found {}. Saving new one",
-								signature, doc.signature);
-						doc.signature = signature;
-						client.update(doc);
-					}
-					client.shutdown();
-				} catch (IOException e) {
-					LOG.warn("Exception checking signature", e);
-				}
+			if (options.version) {
+				String version = Vault.class.getPackage()
+						.getImplementationVersion();
+				System.out.println("Vault " + version);
+				return null;
 			}
-		});
+			return options;
+		} catch (ParameterException e) {
+			System.err.println(e.getMessage());
+			System.err.println("Use --help to display usage");
+			return null;
+		}
+	}
 
-		m_taskLoop.addTask(new Task() {
-			public long periodMs() {
-				return 60 * 60 * 1000;
-			}
-
-			public void run() {
-				m_syncService.sync();
-			}
-		});
-
-		m_taskLoop.addTask(new Task() {
-			public long periodMs() {
-				return 5 * 60 * 1000;
-			}
-
-			public void run() {
-				m_workerService.run();
-			}
-		});
-
-		m_taskLoop.run();
+	private static void exportLogConfig(File externalLogConfig)
+			throws IOException {
+		InputStream in = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("logback.xml");
+		FileOutputStream out = new FileOutputStream(externalLogConfig);
+		try {
+			ByteStreams.copy(in, out);
+		} finally {
+			in.close();
+			out.close();
+		}
 	}
 }

@@ -4,19 +4,29 @@ Vault is a distributed information keeping system that runs on top of CouchDB. I
 
 ## Install
 
-Installing Vault right now is fragile. You need to create a 'vault' db, create an entry with all the info you want in the proper schema, save that entry with _id equal to the uuid from CouchDB's local.ini file, then add the following line to the os_daemons section of local.ini:
+To install Vault, you need to prepare CouchDB:
 
-    vault = "c:/Program Files/Java/jdk1.7.0_21/bin/java.exe" -jar c:/Users/steve/Cloud/src/vault/tmp/vault.jar --sentinel
+1. Lock down your couch install (Vault won't work with admin party)
+2. Create a user with admin rights for Vault to use
+3. Edit the `[couchdb]` section of CouchDB's local.ini file:
+    * Ensure there is a `uuid` property (this should already exist on any modern version of CouchDB)
+    * Add `vault_user` and `vault_pass` properties
 
-Once you've added that line, however, CouchDB will keep Vault running, and Vault will read everything it needs from CouchDB's config using the [api][couchdb-externals], and keep syncing.
+Once that's done, create a folder somewhere (c:/vault), put `couch.jar` in it, and add the following line to the `os_daemons` section of local.ini for Windows:
 
-If you've secured the vault database on your CouchDB (recommended), then make sure your local.ini has 'vault_user' and 'vault_pass' properties right after the 'uuid'
+    vault = java -cp c:/vault;c:/vault/vault.jar com.horsefire.vault.Sentinel
+
+or for linux:
+
+    vault = java -cp /opt/vault:/opt/vault/vault.jar com.horsefire.vault.Sentinel
+
+Once you've added that line, CouchDB will keep Vault running, and Vault will read everything it needs from CouchDB's config using the [api][couchdb-externals], and keep syncing.
 
 ## Licences
 Vault is licenced under [Apache Licence 2.0][apache20]. It contains libraries licenced under:
 
-* [Apache Licence 2.0][apache20] (Jetty, Gson, Guava, Joda-Time, JCommander, LightCouch)
-* [Gnu Lesser General Public Licence LGPL][lgpl] (org.swinglabs.pdf-renderer, Logback)
+* [Apache Licence 2.0][apache20] (Gson, Guava, Joda-Time, JCommander, LightCouch)
+* [Gnu Lesser General Public Licence LGPL][lgpl] (Logback)
 * MIT Licences ([jQuery & jQuery-UI][mit-jquery], SLF4J)
 
 As the LGPL libraries were not modified in any way, they can be released under non-GPL licences.
@@ -29,21 +39,34 @@ A user adds new vaults, installs/adds new apps, and updates connection informati
 
 ## Responsibilities
 The sentinel needs to perform the following responsibilities, and needs to do it using only the data in the Data Structure section below.
-* Periodically check the signature of the current vault, and update the vault entry's stored signature if needed
+
+### Ensures local data is correct
+Vault should make sure the following are always true:
+
+* There is a database called `vault`
+* The `vault` db has an entry for this CouchDB's uuid
+* The entry for this CouchDB should have an accurate username, password, port, and signature
+* There is a database called `vault-id`
+* The `vault_id` db has a single entry called `id` with this vault's id
+
+### Syncs with remote vaults (unimplemented)
 * Periodically sync with other vaults
-  1. Iterate through all vaults in priority order
-  2. For each vault, if it has no host/port info, skip vault
-  3. Check the signature. If it does not match, skip vault
-  4. Sync each database my vault has that the remote vault should have
+    1. Iterate through all vaults in priority order
+    2. For each vault, if it has no host/port info, skip vault
+    3. Check the signature. If it does not match, skip vault
+    4. Sync each database my vault has that the remote vault should have
+
+### Trigger workers for installed vault apps (unimplemented)
 * Trigger workers of installed apps
-  1. Listen to the _changes feed for each installed app, watching for a changed to the worker entry
-  2. If the "triggered" time is before the "started", do "run the worker" (see below)
-  3. Update the "started" time to now
-  4. Start the worker
-  5. When the worker ends, update the "worker_finished" to now
+    1. Listen to the _changes feed for each installed app, watching for a changed to the worker entry
+    2. If the "triggered" time is before the "started", do "run the worker" (see below)
+    3. Update the "started" time to now
+    4. Start the worker
+    5. When the worker ends, update the "worker_finished" to now
 
 ### Data Structure
 Vault db entry for each vault
+
 * id: vault_id
 * type: vault
 * name: string
@@ -55,15 +78,16 @@ Vault db entry for each vault
 ** port: int
 
 Vault db entry for each app
+
 * id: random
 * type: app
 * name: string
 * db: database_name
 * ui: entry point (if _design/ui/index.html then: "ui/index.html")
-* worker: id (db entry with worker, only if there's a worker)
+* worker: id for tracking and triggering worker times
+** optional, but if specified, look for worker.jar in ui, and run with: --db --host --port --username --password
 
 Worker trigger db entry for each app
-* _attachment/worker_jar (jar file for worker. Always run with: --port --db --username --password)
 * triggered: timestamp (when someone requested the worker to run)
 * started: timestamp (last time started)
 * finished: timestamp (last time finished)

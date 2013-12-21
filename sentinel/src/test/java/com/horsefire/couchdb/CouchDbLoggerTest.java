@@ -1,4 +1,4 @@
-package com.horsefire.vault;
+package com.horsefire.couchdb;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import com.horsefire.vault.couch.CouchDbLogger;
+import com.horsefire.couchdb.CouchDbLogger;
 
 public class CouchDbLoggerTest extends TestCase {
 

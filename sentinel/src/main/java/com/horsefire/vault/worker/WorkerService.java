@@ -19,7 +19,7 @@ import com.horsefire.vault.couch.WorkerDocument;
  * to see if it's after the started timestamp. If so, it runs the worker, and
  * sets started to now. When the worker is finished, it sets finished to now.
  */
-public class WorkerService {
+public class WorkerService implements Runnable {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(WorkerService.class);

@@ -23,6 +23,6 @@ public class SyncServiceTester {
 				dbUsername, dbPassword, gsonBuilderProvider);
 
 		new SyncService(factory, vaultId, new SimpleHttpClient(
-				new HttpService())).sync();
+				new HttpService())).run();
 	}
 }

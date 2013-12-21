@@ -1,4 +1,4 @@
-package com.horsefire.vault.util;
+package com.horsefire.couchdb;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TimeoutInputStream extends InputStream {
+class TimeoutInputStream extends InputStream {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(TimeoutInputStream.class);

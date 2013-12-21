@@ -1,4 +1,4 @@
-package com.horsefire.vault;
+package com.horsefire.couchdb;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import com.horsefire.vault.couch.CouchDbCommunicator;
+import com.horsefire.couchdb.CouchDbCommunicator;
 
 public class CouchDbCommunicatorTest extends TestCase {
 

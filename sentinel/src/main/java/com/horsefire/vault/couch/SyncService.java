@@ -20,7 +20,7 @@ import com.horsefire.vault.SimpleHttpClient;
 /**
  * Service to sync to all reachable vaults
  */
-public class SyncService {
+public class SyncService implements Runnable {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(SyncService.class);
@@ -37,7 +37,7 @@ public class SyncService {
 		m_simpleClient = simpleClient;
 	}
 
-	public void sync() {
+	public void run() {
 		LOG.info("Starting sync");
 		CouchDbClient client = m_factory.get("vault");
 		VaultDocument doc = client.find(VaultDocument.class, m_id);

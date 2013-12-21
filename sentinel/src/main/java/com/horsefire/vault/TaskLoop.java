@@ -12,14 +12,9 @@ import com.google.inject.Inject;
 
 public class TaskLoop {
 
-	public static interface Task {
-		long periodMs();
-
-		void run();
-	}
-
 	private class TaskNode {
-		Task task;
+		Runnable task;
+		long periodMs;
 		long nextRun;
 	}
 
@@ -37,9 +32,10 @@ public class TaskLoop {
 		m_quitter = quitter;
 	}
 
-	public void addTask(Task task) {
+	public void addTask(Runnable task, long periodMs) {
 		TaskNode node = new TaskNode();
 		node.task = task;
+		node.periodMs = periodMs;
 		node.nextRun = 0;
 		synchronized (m_tasks) {
 			if (m_started) {
@@ -106,7 +102,7 @@ public class TaskLoop {
 			for (TaskNode task : m_tasks) {
 				if (task.nextRun < now) {
 					task.task.run();
-					task.nextRun = now + task.task.periodMs();
+					task.nextRun = now + task.periodMs;
 				}
 			}
 

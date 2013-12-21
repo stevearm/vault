@@ -118,7 +118,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.horsefire.vault.Bootstrap</mainClass>
+							<mainClass>com.horsefire.vault.Vault</mainClass>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>

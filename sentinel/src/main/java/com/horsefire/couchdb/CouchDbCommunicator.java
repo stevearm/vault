@@ -1,4 +1,4 @@
-package com.horsefire.vault.couch;
+package com.horsefire.couchdb;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +7,7 @@ import java.io.PrintStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CouchDbCommunicator {
+class CouchDbCommunicator {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(CouchDbCommunicator.class);
@@ -20,7 +20,7 @@ public class CouchDbCommunicator {
 		m_in = in;
 	}
 
-	private String get(String category, String key) throws IOException {
+	public String get(String category, String key) throws IOException {
 		String command = "[\"get\", \"" + category + "\", \"" + key + "\"]\n";
 		LOG.debug("Sending command to CouchDB: {}", command);
 		m_out.print(command);
