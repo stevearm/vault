@@ -1,5 +1,6 @@
 package com.horsefire.vault.couch;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonObject;
@@ -21,11 +22,10 @@ public class VaultDocument {
 	public String username;
 	public String password;
 
-	// Connection info (only if externally accessible)
-	public String host;
-	public int port;
+	// Null if vault is not externally addressable
+	public Addressable addressable;
 
-	public List<String> dbs;
+	public List<String> dbs = new ArrayList<String>();
 
 	public enum Direction {
 		@SerializedName("push")
@@ -36,5 +36,10 @@ public class VaultDocument {
 
 		@SerializedName("both")
 		BOTH
+	}
+
+	public static class Addressable {
+		public String host;
+		public int port;
 	}
 }

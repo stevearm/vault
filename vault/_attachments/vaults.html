@@ -18,8 +18,6 @@ td, th {
 				<th id="db-list-header" colspan="2">Managed dbs</th>
 			</tr>
 			<tr id="db-list">
-				<td>vault</td>
-				<td>vaultui</td>
 			</tr>
 		</table>
 	</body>
@@ -37,7 +35,7 @@ td, th {
 var db;
 var vaults = {};
 $(function(){
-	db = $.couch.db('vault');
+	db = $.couch.db('vaultdb');
 	db.view("indexes/type", {
 		include_docs: true,
 		key: "vault",
@@ -74,15 +72,19 @@ var showVaults = function() {
 	for (var dbName in tmp) {
 		dbs.push(dbName);
 	}
-	dbs.splice(dbs.indexOf("vault"), 1).splice(dbs.indexOf("vaultui"), 1);
 	dbs.sort();
-	dbs = ["vault", "vaultui"].concat(dbs);
 	console.log("Full list of dbs", dbs);
 	
-	$('#db-list-header').attr('colspan', dbs.length);
-	var dbListElement = $('#db-list');
-	for (var i = 2; i < dbs.length; i++) {
-		dbListElement.append("<td>"+dbs[i]+"</td>");
+	// Add all dbs to the header
+	if (dbs.length == 0) {
+		$('#db-list-header').attr('colspan', 1);
+		$('#db-list').append("<td>None</td>");
+	} else {
+		$('#db-list-header').attr('colspan', dbs.length);
+		var dbListElement = $('#db-list');
+		for (var i = 2; i < dbs.length; i++) {
+			dbListElement.append("<td>"+dbs[i]+"</td>");
+		}
 	}
 	
 	var vaultTable = $('#vault-table');
@@ -91,17 +93,23 @@ var showVaults = function() {
 		var vaultRow = "<tr>";
 		vaultRow += "<td>"+vault.name+"</td>";
 		vaultRow += "<td>";
-		if ("host" in vault) {
-			if ("username" in vault) { vaultRow += vault.username + ":" + vault.password + "@"; }
-			vaultRow += vault.host + ":" + vault.port;
+		if ("addressable" in vault) {
+			var url = "http://" + vault.addressable.host + ":" + vault.addressable.port + "/vault/_design/ui/index.html";
+			vaultRow += "<a href=\"" + url + "\">" + url + "</a>";
 		} else {
 			vaultRow += "Not reachable";
 		}
 		vaultRow += "</td>";
 		vaultRow += "<td>"+JSON.stringify(vault.signature)+"</td>";
 		vaultRow += "<td>"+("priority" in vault ? vault.priority : "0")+"</td>";
-		for (var i = 0; i < dbs.length; i++) {
-			vaultRow += "<td>"+( vault.dbs.indexOf(dbs[i]) == -1 ? "no" : "yes")+"</td>";
+
+		// Show if this vault manages each db
+		if (dbs.length == 0) {
+			vaultRow += "<td>N/A</td>";
+		} else {
+			for (var i = 0; i < dbs.length; i++) {
+				vaultRow += "<td>"+( vault.dbs.indexOf(dbs[i]) == -1 ? "no" : "yes")+"</td>";
+			}
 		}
 		vaultRow += "</tr>";
 		vaultTable.append(vaultRow);

@@ -113,6 +113,7 @@ public class LocalDataService implements Runnable {
 		} catch (NoDocumentException e) {
 			doc = new VaultDocument();
 			doc._id = m_id;
+			doc.name = "New vault (" + m_id + ")";
 			LOG.info("Creating {} document in {}", doc._id, dbName);
 			dirty = true;
 		}

@@ -28,7 +28,7 @@ td, th {
 	
 	<script type="text/javascript">
 $(function(){
-	$.couch.db('vault').view("indexes/type", {
+	$.couch.db('vaultdb').view("indexes/type", {
 		include_docs: true,
 		key: "app",
 		success: function(data) {

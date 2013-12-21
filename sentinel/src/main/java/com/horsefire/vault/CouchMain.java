@@ -30,8 +30,8 @@ public class CouchMain {
 		String dbHost = OsDaemonUtil.getBindAddress();
 		int dbPort = OsDaemonUtil.getPort();
 		String id = OsDaemonUtil.getUuid();
-		String dbUsername = OsDaemonUtil.getProperty("couchdb", "vault_user");
-		String dbPassword = OsDaemonUtil.getProperty("couchdb", "vault_pass");
+		String dbUsername = OsDaemonUtil.getProperty("vault", "username");
+		String dbPassword = OsDaemonUtil.getProperty("vault", "password");
 		if (empty(id) || empty(dbUsername) || empty(dbPassword)) {
 			System.out.println("Missing uuid, username or password");
 			System.exit(1);

@@ -8,17 +8,19 @@ To install Vault, you need to prepare CouchDB:
 
 1. Lock down your couch install (Vault won't work with admin party)
 2. Create a user with admin rights for Vault to use
-3. Edit the `[couchdb]` section of CouchDB's local.ini file:
-    * Ensure there is a `uuid` property (this should already exist on any modern version of CouchDB)
-    * Add `vault_user` and `vault_pass` properties
+3. Edit CouchDB's local.ini file:
+    * Ensure the `[couchdb]` section has a `uuid` property (this should already exist on any modern version of CouchDB)
+    * Add a `[vault]` section at the bottom and add the following keys
+        * `username` (required)
+        * `password` (required)
 
 Once that's done, create a folder somewhere (c:/vault), put `couch.jar` in it, and add the following line to the `os_daemons` section of local.ini for Windows:
 
-    vault = java -cp c:/vault;c:/vault/vault.jar com.horsefire.vault.Sentinel
+    vault = java -cp c:/vault/vault.jar com.horsefire.vault.Sentinel c:/vault
 
 or for linux:
 
-    vault = java -cp /opt/vault:/opt/vault/vault.jar com.horsefire.vault.Sentinel
+    vault = java -cp /opt/vault/vault.jar com.horsefire.vault.Sentinel /opt/vault
 
 Once you've added that line, CouchDB will keep Vault running, and Vault will read everything it needs from CouchDB's config using the [api][couchdb-externals], and keep syncing.
 
@@ -43,11 +45,12 @@ The sentinel needs to perform the following responsibilities, and needs to do it
 ### Ensures local data is correct
 Vault should make sure the following are always true:
 
-* There is a database called `vault`
-* The `vault` db has an entry for this CouchDB's uuid
-* The entry for this CouchDB should have an accurate username, password, port, and signature
-* There is a database called `vault-id`
-* The `vault_id` db has a single entry called `id` with this vault's id
+* There is publicly readable database called `vault`
+* The `vault` db has an entry `id` with this vault's id
+* There is non-publicly readable database called `vaultdb`
+* The `vaultdb` db has an entry for this CouchDB's uuid
+* The entry for this CouchDB should have an accurate username, password and signature
+
 
 ### Syncs with remote vaults (unimplemented)
 * Periodically sync with other vaults

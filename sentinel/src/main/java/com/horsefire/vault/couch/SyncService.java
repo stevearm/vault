@@ -42,7 +42,7 @@ public class SyncService implements Runnable {
 		CouchDbClient client = m_factory.get("vault");
 		VaultDocument doc = client.find(VaultDocument.class, m_id);
 
-		List<VaultDocument> remoteVaults = getTargetVaults(client, doc.dbs);
+		List<VaultDocument> remoteVaults = getTargetVaults(client);
 		LOG.debug("Syncing to {} remote vaults", remoteVaults.size());
 		Collections.sort(remoteVaults, new Comparator<VaultDocument>() {
 			public int compare(VaultDocument o1, VaultDocument o2) {
@@ -59,44 +59,29 @@ public class SyncService implements Runnable {
 		LOG.info("Finished sync");
 	}
 
-	private List<VaultDocument> getTargetVaults(CouchDbClient client,
-			List<String> dbs) {
+	private List<VaultDocument> getTargetVaults(CouchDbClient client) {
 		List<VaultDocument> vaults = client.view("indexes/type")
 				.key(VaultDocument.TYPE).includeDocs(Boolean.TRUE)
 				.query(VaultDocument.class);
 
 		for (Iterator<VaultDocument> it = vaults.iterator(); it.hasNext();) {
 			VaultDocument doc = it.next();
-			if (!doc._id.equals(m_id) && doc.host != null
-					&& !doc.host.isEmpty()) {
-				LOG.trace("Comparing my {} to {}'s {}", dbs, doc.name, doc.dbs);
-				boolean common = false;
-				for (String db : dbs) {
-					if (doc.dbs.contains(db)) {
-						common = true;
-						break;
-					}
-				}
-				if (common) {
-					continue;
-				}
-				LOG.trace(
-						"Skipping vault {} because it has no dbs in common with me",
+			if (doc.addressable == null) {
+				LOG.trace("Skipping vault {} because it's not addressable",
 						doc.name);
-			} else {
-				LOG.trace(
-						"Skipping vault {} because it's me, or it has no host",
-						doc.name);
+				it.remove();
+			} else if (doc._id.equals(m_id)) {
+				LOG.trace("Skipping vault {} because it's me", doc.name);
+				it.remove();
 			}
-			it.remove();
 		}
 		return vaults;
 	}
 
 	private void sync(CouchDbClient couchClient, List<String> dbs,
 			VaultDocument target) {
-		String host = target.host;
-		Integer port = target.port;
+		String host = target.addressable.host;
+		Integer port = target.addressable.port;
 
 		LOG.debug("Sync to {} ({}) at {}:{}", target.name, target._id, host,
 				port);
@@ -127,11 +112,8 @@ public class SyncService implements Runnable {
 	}
 
 	private String buildUrl(VaultDocument vault, String db) {
-		String credentials = "";
-		if (vault.username != null) {
-			credentials = vault.username + ":" + vault.password + "@";
-		}
-		return "http://" + credentials + vault.host + ":" + vault.port + "/"
+		return "http://" + vault.username + ":" + vault.password + "@"
+				+ vault.addressable.host + ":" + vault.addressable.port + "/"
 				+ db;
 	}
 
