@@ -16,12 +16,15 @@ import com.horsefire.couchdb.OsDaemonUtil;
  */
 public class CouchMain {
 
-	private static final File LOG_CONFIG_FILE = new File("vault.xml");
+	private static final String LOG_CONFIG_FILE = "vault.xml";
 
 	public static void main(String[] args) throws Exception {
-		if (LOG_CONFIG_FILE.isFile()) {
-			System.setProperty("logback.configurationFile",
-					LOG_CONFIG_FILE.getAbsolutePath());
+		if (args.length == 1) {
+			File logConfigFile = new File(args[0], LOG_CONFIG_FILE);
+			if (logConfigFile.isFile()) {
+				System.setProperty("logback.configurationFile",
+						logConfigFile.getAbsolutePath());
+			}
 		}
 
 		String dbHost = OsDaemonUtil.getBindAddress();

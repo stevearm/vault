@@ -52,6 +52,7 @@ public class LocalDataService implements Runnable {
 		CouchDbClient client = m_factory.get(dbName);
 
 		if (!client.context().getAllDbs().contains(dbName)) {
+			LOG.info("Creating {} db", dbName);
 			client.context().createDB(dbName);
 		}
 
@@ -62,10 +63,12 @@ public class LocalDataService implements Runnable {
 		} catch (NoDocumentException e) {
 			doc = new IdDocument();
 			doc._id = IdDocument.ID;
+			LOG.info("Creating {} document in {}", doc._id, dbName);
 			dirty = true;
 		}
 		if (!m_id.equals(doc.vaultId)) {
 			doc.vaultId = m_id;
+			LOG.info("Updating vaultId in {}/{}", dbName, doc._id);
 			dirty = true;
 		}
 
@@ -99,6 +102,7 @@ public class LocalDataService implements Runnable {
 		CouchDbClient client = m_factory.get(dbName);
 
 		if (!client.context().getAllDbs().contains(dbName)) {
+			LOG.info("Creating {} db", dbName);
 			client.context().createDB(dbName);
 		}
 
@@ -109,6 +113,7 @@ public class LocalDataService implements Runnable {
 		} catch (NoDocumentException e) {
 			doc = new VaultDocument();
 			doc._id = m_id;
+			LOG.info("Creating {} document in {}", doc._id, dbName);
 			dirty = true;
 		}
 
@@ -127,10 +132,12 @@ public class LocalDataService implements Runnable {
 
 		if (!m_dbUsername.equals(doc.username)) {
 			doc.username = m_dbUsername;
+			LOG.info("Updating username in {}/{}", dbName, doc._id);
 			dirty = true;
 		}
 		if (!m_dbPassword.equals(doc.password)) {
 			doc.password = m_dbPassword;
+			LOG.info("Updating password in {}/{}", dbName, doc._id);
 			dirty = true;
 		}
 
