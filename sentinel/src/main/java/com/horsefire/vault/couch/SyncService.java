@@ -42,14 +42,9 @@ public class SyncService implements Runnable {
 		CouchDbClient client = m_factory.get("vault");
 		VaultDocument doc = client.find(VaultDocument.class, m_id);
 
-		List<VaultDocument> remoteVaults = getTargetVaults(client);
-		LOG.debug("Syncing to {} remote vaults", remoteVaults.size());
-		Collections.sort(remoteVaults, new Comparator<VaultDocument>() {
-			public int compare(VaultDocument o1, VaultDocument o2) {
-				return o1.priority == o2.priority ? 0
-						: (o1.priority < o2.priority ? -1 : 1);
-			}
-		});
+		List<VaultDocument> remoteVaults = getRemoteVaults(client);
+		LOG.debug("Found {} remote vaults", remoteVaults.size());
+		sortPriorityDesc(remoteVaults);
 
 		for (VaultDocument syncTarget : remoteVaults) {
 			sync(client, doc.dbs, syncTarget);
@@ -59,7 +54,16 @@ public class SyncService implements Runnable {
 		LOG.info("Finished sync");
 	}
 
-	private List<VaultDocument> getTargetVaults(CouchDbClient client) {
+	static void sortPriorityDesc(List<VaultDocument> vaults) {
+		Collections.sort(vaults, new Comparator<VaultDocument>() {
+			public int compare(VaultDocument o1, VaultDocument o2) {
+				return o1.priority == o2.priority ? 0
+						: (o1.priority < o2.priority ? 1 : -1);
+			}
+		});
+	}
+
+	private List<VaultDocument> getRemoteVaults(CouchDbClient client) {
 		List<VaultDocument> vaults = client.view("indexes/type")
 				.key(VaultDocument.TYPE).includeDocs(Boolean.TRUE)
 				.query(VaultDocument.class);
@@ -67,11 +71,11 @@ public class SyncService implements Runnable {
 		for (Iterator<VaultDocument> it = vaults.iterator(); it.hasNext();) {
 			VaultDocument doc = it.next();
 			if (doc.addressable == null) {
-				LOG.trace("Skipping vault {} because it's not addressable",
-						doc.name);
+				LOG.trace("Skipping {} ({}) because it's not addressable",
+						doc.name, doc._id);
 				it.remove();
 			} else if (doc._id.equals(m_id)) {
-				LOG.trace("Skipping vault {} because it's me", doc.name);
+				LOG.trace("Skipping {} ({}) because it's me", doc.name, doc._id);
 				it.remove();
 			}
 		}

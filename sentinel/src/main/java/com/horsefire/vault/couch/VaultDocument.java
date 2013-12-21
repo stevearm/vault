@@ -16,7 +16,10 @@ public class VaultDocument {
 	private String type = TYPE;
 
 	public String name;
+
+	// Highest priority is synced first
 	public int priority;
+
 	public JsonObject signature;
 
 	public String username;
