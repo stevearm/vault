@@ -105,23 +105,26 @@ public class SyncService implements Runnable {
 			return;
 		}
 
+		sync(couchClient, target, "vault");
+		sync(couchClient, target, "vaultdb");
+
 		for (String db : dbs) {
 			if (!target.dbs.contains(db)) {
 				continue;
 			}
-			String remote = buildUrl(target, db);
-			sync(couchClient, remote, db);
-			sync(couchClient, db, remote);
+			sync(couchClient, target, db);
 		}
 	}
 
-	private String buildUrl(VaultDocument vault, String db) {
-		return "http://" + vault.username + ":" + vault.password + "@"
+	private void sync(CouchDbClient client, VaultDocument vault, String db) {
+		String remote = "http://" + vault.username + ":" + vault.password + "@"
 				+ vault.addressable.host + ":" + vault.addressable.port + "/"
 				+ db;
+		push(client, remote, db);
+		push(client, db, remote);
 	}
 
-	private void sync(CouchDbClient client, String from, String to) {
+	private void push(CouchDbClient client, String from, String to) {
 		LOG.debug("Replicating {} -> {}", from, to);
 		ReplicationResult result = client.replication().source(from).target(to)
 				.trigger();
