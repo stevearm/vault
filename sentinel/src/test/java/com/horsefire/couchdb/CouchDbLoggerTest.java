@@ -7,8 +7,6 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import com.horsefire.couchdb.CouchDbLogger;
-
 public class CouchDbLoggerTest extends TestCase {
 
 	private PrintStream m_testStream;
@@ -40,12 +38,7 @@ public class CouchDbLoggerTest extends TestCase {
 	@Test
 	public void testBackslash() {
 		assertTranslated("Test\\Slash", "[\"log\", \"Test\\\\Slash\"]");
-	}
 
-	@Test
-	public void testNewLine() {
-		assertTranslated("Test\nLine", "[\"log\", \"Test\\nLine\"]");
-		assertTranslated("Test Line\n", "[\"log\", \"Test Line\\n\"]");
 	}
 
 	@Test
