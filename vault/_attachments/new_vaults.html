@@ -1,0 +1,36 @@
+<!doctype html>
+<html ng-app="vaults">
+	<head>
+		<title>Vault</title>
+	</head>
+	<body>
+		<table id="vault-table" ng-controller="VaultCtrl">
+			<tr>
+				<th rowspan="2">Name</th>
+				<th rowspan="2">Connection Info</th>
+				<th rowspan="2">Signature</th>
+				<th rowspan="2">Priority</th>
+				<th id="db-list-header" colspan="{{dbs.length}}">Managed dbs</th>
+			</tr>
+			<tr id="db-list">
+				<th ng-repeat="db in dbs">{{db}}</th>
+			</tr>
+			<tr ng-repeat="vault in vaults">
+				<td>{{vault.name}}</td>
+				<td>
+					<span ng-hide="vault.addressable">Not addressable</span>
+					<span ng-show="vault.addressable">{{vault.addressable.host}}:{{vault.addressable.port}}</span>
+				</td>
+				<td>{{vault.sig_string}}</td>
+				<td>{{vault.priority}}</td>
+				<td ng-repeat="db in dbs">{{vault.dbs.indexOf(db) != -1}}</td>
+			</tr>
+		</table>
+	</body>
+
+	<script src="angular/angular.min.js"></script>
+	<script src="vaults.js"></script>
+
+	<script type="text/javascript">
+	</script>
+</html>
