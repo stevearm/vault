@@ -1,119 +1,37 @@
-<html>
+<!doctype html>
+<html ng-app="vaults">
 	<head>
 		<title>Vault</title>
-		<link rel="stylesheet" type="text/css" href="jquery-ui-1.flick.css"/>
-		<style type="text/css">
-td, th {
-	border: #080 1px solid;
-}
-		</style>
 	</head>
 	<body>
-		<table id="vault-table">
+		<table id="vault-table" ng-controller="VaultCtrl">
 			<tr>
 				<th rowspan="2">Name</th>
 				<th rowspan="2">Connection Info</th>
 				<th rowspan="2">Signature</th>
 				<th rowspan="2">Priority</th>
-				<th id="db-list-header" colspan="2">Managed dbs</th>
+				<th id="db-list-header" colspan="{{ dbs.length }}">Managed dbs</th>
 			</tr>
 			<tr id="db-list">
+				<th ng-repeat="db in dbs">{{ db }}</th>
+			</tr>
+			<tr ng-repeat="vault in vaults">
+				<td>{{ vault.name }}</td>
+				<td>
+					<span ng-hide="vault.addressable">Not addressable</span>
+					<span ng-show="vault.addressable">{{ vault.addressable.host }}:{{ vault.addressable.port }}</span>
+				</td>
+				<td>{{ cappedStringify(vault.signature, 30) }}</td>
+				<td>{{ vault.priority }}</td>
+				<td ng-repeat="db in dbs">{{ vault.dbs.indexOf(db) != -1 }}</td>
 			</tr>
 		</table>
 	</body>
 
-	<script src="/_utils/script/json2.js"></script>
-	<script src="/_utils/script/sha1.js"></script>
-	<script src="/_utils/script/base64.js"></script>
-	<script src="/_utils/script/jquery.js"></script>
-	<script src="/_utils/script/jquery.couch.js"></script>
-	<script src="vendor/couchapp/md5.js"></script>
-	<script src="vendor/couchapp/jquery.mustache.js"></script>
-	<script src="jquery-ui-1.10.3.min.js"></script>
-	
+	<script src="angular/angular.min.js"></script>
+	<script src="angular/angular-resource.min.js"></script>
+	<script src="vaults.js"></script>
+
 	<script type="text/javascript">
-var db;
-var vaults = {};
-$(function(){
-	db = $.couch.db('vaultdb');
-	db.view("indexes/type", {
-		include_docs: true,
-		key: "vault",
-		success: function(data) {
-			for (var i = 0; i < data.rows.length; i++) {
-				console.log("Adding vault");
-				vaults[data.rows[i].doc._id] = data.rows[i].doc;
-			}
-			showVaults();
-		},
-		error: function(d1, d2, d3) {
-			if (d1 == 401) {
-				document.location.href = "index.html";
-			} else {
-				console.log('Failed to load', d1, d2, d3);
-				alert('Failed to load');
-			}
-		}
-	});
-});
-
-var showVaults = function() {
-	var tmp = {};
-	console.log("Checking vaults", vaults);
-	for (var id in vaults) {
-		var vault = vaults[id];
-		console.log("Checking vault", vault);
-		for (var i = 0; i < vault.dbs.length; i++) {
-			tmp[vault.dbs[i]] = 1;
-			console.log("Saving db", vault.dbs[i]);
-		}
-	}
-	var dbs = [];
-	for (var dbName in tmp) {
-		dbs.push(dbName);
-	}
-	dbs.sort();
-	console.log("Full list of dbs", dbs);
-	
-	// Add all dbs to the header
-	if (dbs.length == 0) {
-		$('#db-list-header').attr('colspan', 1);
-		$('#db-list').append("<td>None</td>");
-	} else {
-		$('#db-list-header').attr('colspan', dbs.length);
-		var dbListElement = $('#db-list');
-		for (var i = 2; i < dbs.length; i++) {
-			dbListElement.append("<td>"+dbs[i]+"</td>");
-		}
-	}
-	
-	var vaultTable = $('#vault-table');
-	for (var id in vaults) {
-		var vault = vaults[id];
-		var vaultRow = "<tr>";
-		vaultRow += "<td>"+vault.name+"</td>";
-		vaultRow += "<td>";
-		if ("addressable" in vault) {
-			var url = "http://" + vault.addressable.host + ":" + vault.addressable.port + "/vault/_design/ui/index.html";
-			vaultRow += "<a href=\"" + url + "\">" + url + "</a>";
-		} else {
-			vaultRow += "Not reachable";
-		}
-		vaultRow += "</td>";
-		vaultRow += "<td>"+JSON.stringify(vault.signature)+"</td>";
-		vaultRow += "<td>"+("priority" in vault ? vault.priority : "0")+"</td>";
-
-		// Show if this vault manages each db
-		if (dbs.length == 0) {
-			vaultRow += "<td>N/A</td>";
-		} else {
-			for (var i = 0; i < dbs.length; i++) {
-				vaultRow += "<td>"+( vault.dbs.indexOf(dbs[i]) == -1 ? "no" : "yes")+"</td>";
-			}
-		}
-		vaultRow += "</tr>";
-		vaultTable.append(vaultRow);
-	}
-};
 	</script>
 </html>
