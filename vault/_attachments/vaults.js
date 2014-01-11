@@ -1,20 +1,31 @@
-angular.module('vaults', [])
+angular.module('vaults', ['ngResource'])
 
-.controller('VaultCtrl', function($scope, $http) {
-    $scope.vaults = [];
-    $http.get('/vaultdb/_design/indexes/_view/type?include_docs=true&key="vault"').success(function(data) {
-        var vaults = [];
-        for (var i = 0; i < data.rows.length; i++) {
-            var doc = data.rows[i].doc;
-            var sigString = JSON.stringify(doc.signature);
-            if (sigString.length > 20) {
-                sigString = sigString.substr(0, 17) + "...";
+.factory('Vault', function($resource) {
+    return $resource('/vaultdb/:vaultId', {vaultId:'@_id'}, {
+        query: {
+            method: 'GET',
+            isArray: true,
+            url: '/vaultdb/_design/indexes/_view/type?include_docs=true&key="vault"',
+            transformResponse: function(data, headers) {
+                var vaults = [];
+                data = JSON.parse(data);
+                for (var i = 0; i < data.rows.length; i++) {
+                    vaults.push(data.rows[i].doc);
+                }
+                return vaults;
             }
-            doc["sig_string"] = sigString;
-            vaults.push(doc);
         }
-        $scope.vaults = vaults;
     });
+})
+
+.controller('VaultCtrl', ["$scope", "$http", "Vault", function($scope, $http, Vault) {
+    $scope.cappedStringify = function(object, maxLength) {
+        var string = JSON.stringify(object);
+        if (string.length > maxLength) { return string.substr(0, maxLength - 3) + "..."; }
+        return string;
+    };
+
+    $scope.vaults = Vault.query();
 
     $scope.dbs = ["None"];
     $http.get('/_all_dbs').success(function(data) {
@@ -23,4 +34,4 @@ angular.module('vaults', [])
                 && name != '_replicator' && name != '_users';
         });
     });
-});
+}]);
