@@ -33,10 +33,9 @@ public class CouchDbClientFactory {
 		CouchDbProperties properties = new CouchDbProperties()
 				.setDbName(dbName).setCreateDbIfNotExist(false)
 				.setProtocol("http").setHost(m_dbHost).setPort(m_dbPort)
-				.setMaxConnections(5).setConnectionTimeout(500);
-		if (!m_dbUsername.isEmpty()) {
-			properties.setUsername(m_dbUsername).setPassword(m_dbPassword);
-		}
+				.setMaxConnections(5).setConnectionTimeout(500)
+				.setUsername(m_dbUsername).setPassword(m_dbPassword);
+
 		CouchDbClient client = new CouchDbClient(properties);
 		client.setGsonBuilder(m_gsonBuilderProvider.get());
 		return client;

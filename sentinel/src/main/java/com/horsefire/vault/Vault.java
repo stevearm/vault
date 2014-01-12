@@ -20,6 +20,16 @@ import com.google.inject.Injector;
  */
 public class Vault {
 
+	public static final String VERSION;
+
+	static {
+		String version = Vault.class.getPackage().getImplementationVersion();
+		if (version == null) {
+			version = "UNKNOWN-VERSION";
+		}
+		VERSION = version;
+	}
+
 	public static void main(String[] args) throws Exception {
 		Options options = getOptions(args);
 		if (options == null) {
@@ -62,9 +72,7 @@ public class Vault {
 			}
 
 			if (options.version) {
-				String version = Vault.class.getPackage()
-						.getImplementationVersion();
-				System.out.println("Vault " + version);
+				System.out.println("Vault " + VERSION);
 				return null;
 			}
 			return options;

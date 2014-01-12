@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.horsefire.vault.CouchDbClientFactory;
 import com.horsefire.vault.SimpleHttpClient;
+import com.horsefire.vault.Vault;
 
 public class LocalDataService implements Runnable {
 
@@ -139,6 +140,11 @@ public class LocalDataService implements Runnable {
 		if (!m_dbPassword.equals(doc.password)) {
 			doc.password = m_dbPassword;
 			LOG.info("Updating password in {}/{}", dbName, doc._id);
+			dirty = true;
+		}
+		if (!Vault.VERSION.equals(doc.sentinel)) {
+			doc.sentinel = Vault.VERSION;
+			LOG.info("Updating sentinel version in {}/{}", dbName, doc._id);
 			dirty = true;
 		}
 

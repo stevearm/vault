@@ -49,23 +49,21 @@ Vault should make sure the following are always true:
 * The `vault` db has an entry `id` with this vault's id
 * There is non-publicly readable database called `vaultdb`
 * The `vaultdb` db has an entry for this CouchDB's uuid
-* The entry for this CouchDB should have an accurate username, password and signature
-
+* The `vaultdb` entry for this CouchDB should have an accurate username, password, signature, and sentinel version
 
 ### Syncs with remote vaults (unimplemented)
 * Periodically sync with other vaults
-    1. Iterate through all vaults in priority order
-    2. For each vault, if it has no host/port info, skip vault
-    3. Check the signature. If it does not match, skip vault
-    4. Sync each database my vault has that the remote vault should have
+    1. Iterate through all vaults with an addressable block, in priority order
+    1. Check the signature. If it does not match, skip vault
+    1. Sync each database my vault has that the remote vault should have
 
 ### Trigger workers for installed vault apps (unimplemented)
 * Trigger workers of installed apps
     1. Listen to the _changes feed for each installed app, watching for a changed to the worker entry
-    2. If the "triggered" time is before the "started", do "run the worker" (see below)
-    3. Update the "started" time to now
-    4. Start the worker
-    5. When the worker ends, update the "worker_finished" to now
+    1. If the "triggered" time is before the "started", do "run the worker" (see below)
+    1. Update the "started" time to now
+    1. Start the worker
+    1. When the worker ends, update the "worker_finished" to now
 
 ### Data Structure
 Vault db entry for each vault
@@ -73,12 +71,13 @@ Vault db entry for each vault
 * id: vault_id
 * type: vault
 * name: string
-* priority: int (optional, default to 0)
 * signature: object
 * dbs: array of database_name
-* (connection info only if pushable)
+* addressable: object (this only exists if vault is externally accessable)
 ** host: string
 ** port: int
+** priority: int
+** enabled: boolean
 
 Vault db entry for each app
 

@@ -22,6 +22,10 @@ public class VaultDocument {
 	public String username;
 	public String password;
 
+	// If this vault has a sentinel running, this is the version
+	// (if not, this is null)
+	public String sentinel;
+
 	// Null if vault is not externally addressable
 	public Addressable addressable;
 
@@ -42,5 +46,6 @@ public class VaultDocument {
 		public String host;
 		public int port;
 		public int priority; // Highest priority is synced first
+		public boolean enabled;
 	}
 }

@@ -1,12 +1,14 @@
 package com.horsefire.vault.couch;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.lightcouch.CouchDbClient;
+import org.lightcouch.CouchDbException;
+import org.lightcouch.NoDocumentException;
 import org.lightcouch.ReplicationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,19 +41,23 @@ public class SyncService implements Runnable {
 
 	public void run() {
 		LOG.info("Starting sync");
-		CouchDbClient client = m_factory.get("vault");
-		VaultDocument doc = client.find(VaultDocument.class, m_id);
+		CouchDbClient client = m_factory.get("vaultdb");
+		try {
+			VaultDocument doc = client.find(VaultDocument.class, m_id);
 
-		List<VaultDocument> remoteVaults = getRemoteVaults(client);
-		LOG.debug("Found {} remote vaults", remoteVaults.size());
-		sortPriorityDesc(remoteVaults);
+			List<VaultDocument> remoteVaults = getRemoteVaults(client);
+			LOG.debug("Found {} remote vaults", remoteVaults.size());
+			sortPriorityDesc(remoteVaults);
 
-		for (VaultDocument syncTarget : remoteVaults) {
-			sync(client, doc.dbs, syncTarget);
+			for (VaultDocument syncTarget : remoteVaults) {
+				sync(client, doc.dbs, syncTarget);
+			}
+
+			client.shutdown();
+			LOG.info("Finished sync");
+		} catch (NoDocumentException e) {
+			LOG.error("Error downloading document vault/{}", m_id, e);
 		}
-
-		client.shutdown();
-		LOG.info("Finished sync");
 	}
 
 	static void sortPriorityDesc(List<VaultDocument> vaults) {
@@ -65,20 +71,20 @@ public class SyncService implements Runnable {
 	}
 
 	private List<VaultDocument> getRemoteVaults(CouchDbClient client) {
-		List<VaultDocument> vaults = client.view("indexes/type")
+		List<VaultDocument> vaults = new ArrayList<VaultDocument>();
+
+		List<VaultDocument> possibleVaults = client.view("indexes/type")
 				.key(VaultDocument.TYPE).includeDocs(Boolean.TRUE)
 				.query(VaultDocument.class);
-
-		for (Iterator<VaultDocument> it = vaults.iterator(); it.hasNext();) {
-			VaultDocument doc = it.next();
-			if (doc.addressable == null) {
-				LOG.trace("Skipping {} ({}) because it's not addressable",
+		for (VaultDocument doc : possibleVaults) {
+			if (doc.addressable == null || !doc.addressable.enabled
+					|| doc._id.equals(m_id)) {
+				LOG.trace(
+						"Skipping {} ({}) because it's not addressable, is disabled, or is me",
 						doc.name, doc._id);
-				it.remove();
-			} else if (doc._id.equals(m_id)) {
-				LOG.trace("Skipping {} ({}) because it's me", doc.name, doc._id);
-				it.remove();
+				continue;
 			}
+			vaults.add(doc);
 		}
 		return vaults;
 	}
@@ -121,14 +127,22 @@ public class SyncService implements Runnable {
 		String remote = "http://" + vault.username + ":" + vault.password + "@"
 				+ vault.addressable.host + ":" + vault.addressable.port + "/"
 				+ db;
-		push(client, remote, db);
-		push(client, db, remote);
+		try {
+			push(client, remote, db);
+		} catch (CouchDbException e) {
+			LOG.error("Error pulling {} from {}", db, vault.name, e);
+		}
+		try {
+			push(client, db, remote);
+		} catch (CouchDbException e) {
+			LOG.error("Error pushing {} to {}", db, vault.name, e);
+		}
 	}
 
 	private void push(CouchDbClient client, String from, String to) {
 		LOG.debug("Replicating {} -> {}", from, to);
 		ReplicationResult result = client.replication().source(from).target(to)
-				.trigger();
+				.createTarget(true).trigger();
 		if (!result.isOk()) {
 			LOG.warn("Something went wrong during sync from {} to {}", from, to);
 		}
