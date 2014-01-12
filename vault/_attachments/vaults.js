@@ -90,6 +90,10 @@ angular.module("vaults", ["ngResource"])
         return -1;
     };
 
+    $scope.vaultNotReachable = function() {
+        delete $scope.currentVault["addressable"];
+    };
+
     $scope.newVault = function() {
         $scope.currentVault = cleanVault(new Vault());
     }
@@ -132,4 +136,39 @@ angular.module("vaults", ["ngResource"])
         }
         vault.$save();
     }
-}]);
+}])
+
+.directive('json', function() {
+    return {
+        restrict: 'A', // only activate on element attribute
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModelCtrl) {
+            ngModelCtrl.$parsers.push(function(text) {
+                try {
+                    var obj = angular.fromJson(text);
+                    ngModelCtrl.$setValidity('json', true);
+                    return obj;
+                } catch (e) {
+                    ngModelCtrl.$setValidity('json', false);
+                    return null;
+                }
+            });
+
+            var toUser = function(object) {
+                if (!object) { return ""; }
+                return angular.toJson(object, true);
+            }
+            ngModelCtrl.$formatters.push(toUser);
+
+            // $watch(attrs.ngModel) wouldn't work if this directive created a new scope;
+            // see http://stackoverflow.com/questions/14693052/watch-ngmodel-from-inside-directive-using-isolate-scope how to do it then
+            scope.$watch(attrs.ngModel, function(newValue, oldValue) {
+                if (newValue != oldValue) {
+                    ngModelCtrl.$setViewValue(toUser(newValue));
+                    // TODO avoid this causing the focus of the input to be lost..
+                    ngModelCtrl.$render();
+                }
+            }, true); // MUST use objectEquality (true) here, for some reason..
+        }
+    };
+});
