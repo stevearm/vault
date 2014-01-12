@@ -20,6 +20,9 @@ public class LocalDataService implements Runnable {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(LocalDataService.class);
 
+	private static final String VAULT_RELEASE = "http://stevearm.iriscouch.com/vault-release";
+	private static final String VAULTDB_RELEASE = "http://stevearm.iriscouch.com/vaultdb-release";
+
 	private final CouchDbClientFactory m_factory;
 	private final String m_dbHost;
 	private final Integer m_dbPort;
@@ -53,8 +56,9 @@ public class LocalDataService implements Runnable {
 		CouchDbClient client = m_factory.get(dbName);
 
 		if (!client.context().getAllDbs().contains(dbName)) {
-			LOG.info("Creating {} db", dbName);
-			client.context().createDB(dbName);
+			LOG.info("Bootstrapping {} db from {}", dbName, VAULT_RELEASE);
+			client.replication().source(VAULT_RELEASE).target(dbName)
+					.createTarget(true).trigger();
 		}
 
 		boolean dirty = false;
@@ -103,8 +107,9 @@ public class LocalDataService implements Runnable {
 		CouchDbClient client = m_factory.get(dbName);
 
 		if (!client.context().getAllDbs().contains(dbName)) {
-			LOG.info("Creating {} db", dbName);
-			client.context().createDB(dbName);
+			LOG.info("Bootstrapping {} db from {}", dbName, VAULTDB_RELEASE);
+			client.replication().source(VAULTDB_RELEASE).target(dbName)
+					.createTarget(true).trigger();
 		}
 
 		boolean dirty = false;
