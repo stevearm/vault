@@ -4,28 +4,43 @@
 		<title>Vault</title>
 	</head>
 	<body>
-		<table id="vault-table" ng-controller="VaultCtrl">
-			<tr>
-				<th rowspan="2">Name</th>
-				<th rowspan="2">Connection Info</th>
-				<th rowspan="2">Signature</th>
-				<th rowspan="2">Priority</th>
-				<th id="db-list-header" colspan="{{ dbs.length }}">Managed dbs</th>
-			</tr>
-			<tr id="db-list">
-				<th ng-repeat="db in dbs">{{ db }}</th>
-			</tr>
-			<tr ng-repeat="vault in vaults">
-				<td>{{ vault.name }}</td>
-				<td>
-					<span ng-hide="vault.addressable">Not addressable</span>
-					<span ng-show="vault.addressable">{{ vault.addressable.host }}:{{ vault.addressable.port }}</span>
-				</td>
-				<td>{{ cappedStringify(vault.signature, 30) }}</td>
-				<td>{{ vault.priority }}</td>
-				<td ng-repeat="db in dbs">{{ vault.dbs.indexOf(db) != -1 }}</td>
-			</tr>
-		</table>
+		<div ng-controller="VaultCtrl">
+			<table>
+				<tr>
+					<th rowspan="2">Name</th>
+					<th rowspan="2">Connection Info</th>
+					<th rowspan="2">Signature</th>
+					<th rowspan="2">Priority</th>
+					<th id="db-list-header" colspan="{{ dbs.length }}">Managed dbs</th>
+					<td rowspan="2">ID</th>
+					<td rowspan="2">Rev</th>
+				</tr>
+				<tr id="db-list">
+					<th ng-repeat="db in dbs">{{ db }}</th>
+				</tr>
+				<tr ng-repeat="vault in vaults | orderBy:'-priority'">
+					<td ng-click="editVault(vault)">{{ vault.name }}</td>
+					<td>
+						<span ng-hide="vault.addressable">Not addressable</span>
+						<span ng-show="vault.addressable">{{ vault.addressable.host }}:{{ vault.addressable.port }}</span>
+					</td>
+					<td>{{ cappedStringify(vault.signature, 30) }}</td>
+					<td>{{ vault.priority }}</td>
+					<td ng-repeat="db in dbs" ng-click="toggleDb(vault, db)">{{ vault.dbs.indexOf(db) != -1 }}</td>
+					<td>{{ vault._id }}</td>
+					<td>{{ vault._rev }}</td>
+				</tr>
+			</table>
+			<div>Name: <input type="text" ng-model="currentVault.name"/></div>
+			<div>Connection info: <textarea ng-model="currentVault.addressable"></textarea></div>
+			<div>Signature: <textarea ng-model="currentVault.signature"></textarea></div>
+			<div>Priority: <input type="number" ng-model="currentVault.priority"/></div>
+			<div>
+				<button ng-click="newVault()">New</button>
+				<button ng-click="saveVault()">Save</button>
+				<button ng-click="deleteVault()">Delete</button>
+			</div>
+		</div>
 	</body>
 
 	<script src="angular/angular.min.js"></script>
