@@ -1,3 +1,6 @@
+// These two variables are for development (makes changing them easier)
+var vaultDbName = "vaultdb";
+
 var cleanVault = function(vault) {
     vault.type = vault.type || "vault";
     vault.dbs = vault.dbs || [];
@@ -14,12 +17,12 @@ var cleanVault = function(vault) {
 angular.module("vaults", ["ngResource"])
 
 .factory("Vault", function($resource, $http) {
-    var db = "/vaultdb/"
+    var db = "/" + vaultDbName + "/"
     var Vault = $resource(db + ":vaultId", {vaultId:"@_id", vaultRev:"@_rev"}, {
         query: {
             method: "GET",
             isArray: true,
-            url: '/vaultdb/_design/indexes/_view/type?include_docs=true&key="vault"',
+            url: db + '_design/indexes/_view/type?include_docs=true&key="vault"',
             transformResponse: function(data, headers) {
                 var vaults = [];
                 data = JSON.parse(data);
@@ -31,7 +34,7 @@ angular.module("vaults", ["ngResource"])
         },
         delete: {
             method: "DELETE",
-            url: "/vaultdb/:vaultId?rev=:vaultRev"
+            url: db + ":vaultId?rev=:vaultRev"
         }
     });
 
@@ -135,6 +138,16 @@ angular.module("vaults", ["ngResource"])
         }
         $scope.newVault();
     }
+
+    $scope.toggleEnabled = function(vault) {
+        if (!("addressable" in vault)) { return; }
+        if ("enabled" in vault.addressable) {
+            vault.addressable.enabled = !vault.addressable.enabled;
+        } else {
+            vault.addressable.enabled = true;
+        }
+        vault.$save();
+    };
 
     $scope.toggleDb = function(vault, db) {
         var index = vault.dbs.indexOf(db);
