@@ -17,9 +17,6 @@ public class VaultDocument {
 
 	public String name;
 
-	// Highest priority is synced first
-	public int priority;
-
 	public JsonObject signature;
 
 	public String username;
@@ -44,5 +41,6 @@ public class VaultDocument {
 	public static class Addressable {
 		public String host;
 		public int port;
+		public int priority; // Highest priority is synced first
 	}
 }

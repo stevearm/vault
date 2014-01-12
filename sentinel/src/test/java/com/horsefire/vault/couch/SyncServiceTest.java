@@ -7,6 +7,8 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import com.horsefire.vault.couch.VaultDocument.Addressable;
+
 public class SyncServiceTest extends TestCase {
 
 	/**
@@ -16,16 +18,20 @@ public class SyncServiceTest extends TestCase {
 	@Test
 	public void testPrioritySort() {
 		VaultDocument docPos2 = new VaultDocument();
-		docPos2.priority = 2;
+		docPos2.addressable = new Addressable();
+		docPos2.addressable.priority = 2;
 
 		VaultDocument docPos1 = new VaultDocument();
-		docPos1.priority = 1;
+		docPos1.addressable = new Addressable();
+		docPos1.addressable.priority = 1;
 
 		VaultDocument docZero = new VaultDocument();
-		docZero.priority = 0;
+		docZero.addressable = new Addressable();
+		docZero.addressable.priority = 0;
 
 		VaultDocument docNeg2 = new VaultDocument();
-		docNeg2.priority = -2;
+		docNeg2.addressable = new Addressable();
+		docNeg2.addressable.priority = -2;
 
 		List<VaultDocument> vaults = Arrays.asList(docZero, docPos2, docNeg2,
 				docPos1);

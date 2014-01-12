@@ -57,8 +57,9 @@ public class SyncService implements Runnable {
 	static void sortPriorityDesc(List<VaultDocument> vaults) {
 		Collections.sort(vaults, new Comparator<VaultDocument>() {
 			public int compare(VaultDocument o1, VaultDocument o2) {
-				return o1.priority == o2.priority ? 0
-						: (o1.priority < o2.priority ? 1 : -1);
+				int p1 = o1.addressable == null ? 0 : o1.addressable.priority;
+				int p2 = o2.addressable == null ? 0 : o2.addressable.priority;
+				return p1 == p2 ? 0 : (p1 < p2 ? 1 : -1);
 			}
 		});
 	}

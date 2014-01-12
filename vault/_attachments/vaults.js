@@ -2,7 +2,12 @@ var cleanVault = function(vault) {
     vault.type = vault.type || "vault";
     vault.dbs = vault.dbs || [];
     vault.signature = vault.signature || null;
-    vault.priority = vault.priority || 0;
+    vault.priority = function() {
+        if ("addressable" in this) {
+            return this.addressable.priority || 0;
+        }
+        return 0;
+    };
     return vault;
 };
 
@@ -90,8 +95,12 @@ angular.module("vaults", ["ngResource"])
         return -1;
     };
 
-    $scope.vaultNotReachable = function() {
-        delete $scope.currentVault["addressable"];
+    $scope.toggleAddressable = function() {
+        if ("addressable" in $scope.currentVault) {
+            delete $scope.currentVault["addressable"];
+        } else {
+            $scope.currentVault["addressable"] = {};
+        }
     };
 
     $scope.newVault = function() {
@@ -104,7 +113,7 @@ angular.module("vaults", ["ngResource"])
     }
 
     $scope.saveVault = function() {
-        if ("_id" in $scope.currentVault) {
+        if ("_rev" in $scope.currentVault) {
             var index = indexOf($scope.currentVault);
 
             // Persist things not in the edit form
