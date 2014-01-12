@@ -58,13 +58,28 @@ angular.module("vaults", ["ngResource"])
 
     $scope.vaults = Vault.query();
 
-    $scope.dbs = ["None"];
+    $scope.localDbs = [];
     $http.get("/_all_dbs").success(function(data) {
-        $scope.dbs = data.filter(function(name) {
+        $scope.localDbs = data;
+    });
+
+    $scope.dbs = function() {
+        var list = $scope.localDbs;
+        for (var i = 0; i < $scope.vaults.length; i++) {
+            list = list.concat($scope.vaults[i].dbs);
+        }
+        list = list.filter(function(name) {
             return name != "vault" && name != "vaultdb"
                 && name != "_replicator" && name != "_users";
-        });
-    });
+        }).reduce(function(p, c) {
+            if (p.indexOf(c) < 0) p.push(c);
+            return p;
+        }, []).sort();
+        if (list.length == 0) {
+            return ["None"];
+        }
+        return list;
+    }
 
     var indexOf = function(vault) {
         for (var i = 0; i < $scope.vaults.length; i++) {
