@@ -11,6 +11,7 @@
 					<th rowspan="2">Name</th>
 					<th colspan="3">Addressable info</th>
 					<th rowspan="2">Signature</th>
+					<th rowspan="2">Sentinel</th>
 					<th id="db-list-header" colspan="{{ dbs().length }}">Managed dbs</th>
 				</tr>
 				<tr>
@@ -38,6 +39,7 @@
 						<span ng-show="vault.addressable">{{ vault.addressable.enabled || "false" }}</span>
 					</td>
 					<td ng-click="editVault(vault)">{{ cappedStringify(vault.signature, 30) }}</td>
+					<td ng-click="editVault(vault)">{{ vault.sentinel || "None" }}</td>
 					<td ng-repeat="db in dbs()" ng-click="toggleDb(vault, db)">{{ vault.dbs.indexOf(db) != -1 }}</td>
 				</tr>
 			</table>
