@@ -14,13 +14,13 @@ To install Vault, you need to prepare CouchDB:
         * `username` (required)
         * `password` (required)
 
-Once that's done, create a folder somewhere (c:/vault), put `couch.jar` in it, and add the following line to the `os_daemons` section of local.ini for Windows:
+Once that's done, create a folder somewhere (c:/vault), put `vault.jar` in it, and add the following line to the `os_daemons` section of local.ini for Windows:
 
-    vault = java -cp c:/vault/vault.jar com.horsefire.vault.Sentinel c:/vault
+    vault = java -cp c:/vault/vault.jar com.horsefire.vault.CouchMain c:/vault
 
 or for linux:
 
-    vault = java -cp /opt/vault/vault.jar com.horsefire.vault.Sentinel /opt/vault
+    vault = java -cp /opt/vault/vault.jar com.horsefire.vault.CouchMain /opt/vault
 
 Once you've added that line, CouchDB will keep Vault running, and Vault will read everything it needs from CouchDB's config using the [api][couchdb-externals], and keep syncing.
 
