@@ -9,6 +9,7 @@ import java.util.List;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 import org.lightcouch.NoDocumentException;
+import org.lightcouch.Replication;
 import org.lightcouch.ReplicationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,37 +113,43 @@ public class SyncService implements Runnable {
 			return;
 		}
 
-		sync(couchClient, target, "vault");
-		sync(couchClient, target, "vaultdb");
+		sync(couchClient, target, "vault", new String[] { "_design/ui" });
+		sync(couchClient, target, "vaultdb", null);
 
 		for (String db : dbs) {
 			if (!target.dbs.contains(db)) {
 				continue;
 			}
-			sync(couchClient, target, db);
+			sync(couchClient, target, db, null);
 		}
 	}
 
-	private void sync(CouchDbClient client, VaultDocument vault, String db) {
+	private void sync(CouchDbClient client, VaultDocument vault, String db,
+			String[] docIds) {
 		String remote = "http://" + vault.username + ":" + vault.password + "@"
 				+ vault.addressable.host + ":" + vault.addressable.port + "/"
 				+ db;
 		try {
-			push(client, remote, db);
+			push(client, remote, db, docIds);
 		} catch (CouchDbException e) {
 			LOG.error("Error pulling {} from {}", db, vault.name, e);
 		}
 		try {
-			push(client, db, remote);
+			push(client, db, remote, docIds);
 		} catch (CouchDbException e) {
 			LOG.error("Error pushing {} to {}", db, vault.name, e);
 		}
 	}
 
-	private void push(CouchDbClient client, String from, String to) {
+	private void push(CouchDbClient client, String from, String to,
+			String[] docIds) {
 		LOG.debug("Replicating {} -> {}", from, to);
-		ReplicationResult result = client.replication().source(from).target(to)
-				.createTarget(true).trigger();
+		Replication replication = client.replication().source(from).target(to)
+				.createTarget(true);
+		if (docIds != null) {
+			replication.docIds(docIds);
+		}
+		ReplicationResult result = replication.trigger();
 		if (!result.isOk()) {
 			LOG.warn("Something went wrong during sync from {} to {}", from, to);
 		}
