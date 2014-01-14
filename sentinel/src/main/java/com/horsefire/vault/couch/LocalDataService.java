@@ -2,6 +2,8 @@ package com.horsefire.vault.couch;
 
 import java.io.IOException;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.NoDocumentException;
 import org.lightcouch.Response;
@@ -61,7 +63,6 @@ public class LocalDataService implements Runnable {
 					.createTarget(true).trigger();
 		}
 
-		boolean dirty = false;
 		IdDocument doc;
 		try {
 			doc = client.find(IdDocument.class, IdDocument.ID);
@@ -69,27 +70,28 @@ public class LocalDataService implements Runnable {
 			doc = new IdDocument();
 			doc._id = IdDocument.ID;
 			LOG.info("Creating {} document in {}", doc._id, dbName);
-			dirty = true;
 		}
+
+		// Tag this run
+		doc.sentinelRun = new DateTime().toString(ISODateTimeFormat
+				.dateTimeNoMillis());
+
 		if (!m_id.equals(doc.vaultId)) {
 			doc.vaultId = m_id;
 			LOG.info("Updating vaultId in {}/{}", dbName, doc._id);
-			dirty = true;
 		}
 
-		if (dirty) {
-			if (doc._rev == null) {
-				Response save = client.save(doc);
-				if (save.getError() != null) {
-					LOG.error("Could not create {} in {} db: {} {}", doc._id,
-							dbName, save.getError(), save.getReason());
-				}
-			} else {
-				Response save = client.update(doc);
-				if (save.getError() != null) {
-					LOG.error("Could not update {} in {} db: {} {}", doc._id,
-							dbName, save.getError(), save.getReason());
-				}
+		if (doc._rev == null) {
+			Response save = client.save(doc);
+			if (save.getError() != null) {
+				LOG.error("Could not create {} in {} db: {} {}", doc._id,
+						dbName, save.getError(), save.getReason());
+			}
+		} else {
+			Response save = client.update(doc);
+			if (save.getError() != null) {
+				LOG.error("Could not update {} in {} db: {} {}", doc._id,
+						dbName, save.getError(), save.getReason());
 			}
 		}
 		client.shutdown();

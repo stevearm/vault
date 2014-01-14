@@ -8,4 +8,5 @@ public class IdDocument {
 	public String _rev;
 
 	public String vaultId;
+	public String sentinelRun;
 }
