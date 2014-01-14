@@ -171,6 +171,7 @@ public class LocalDataService implements Runnable {
 		client.shutdown();
 
 		try {
+			LOG.info("Doing unauthenticated GET to test security. Expecting 401");
 			m_simpleClient.get(m_dbHost, m_dbPort, "/" + dbName + "/" + m_id);
 			LOG.error("Should not be able to publicly read {} db", dbName);
 		} catch (IOException e) {
