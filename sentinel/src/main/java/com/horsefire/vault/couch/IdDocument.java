@@ -9,4 +9,5 @@ public class IdDocument {
 
 	public String vaultId;
 	public String sentinelRun;
+	public String vaultDbName;
 }

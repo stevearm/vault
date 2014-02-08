@@ -2,7 +2,7 @@ package com.horsefire.vault;
 
 import com.beust.jcommander.Parameter;
 
-public class Options {
+public class CmdArgs {
 
 	@Parameter(names = { "-h", "--help" }, description = "Display help", help = true)
 	public boolean help = false;

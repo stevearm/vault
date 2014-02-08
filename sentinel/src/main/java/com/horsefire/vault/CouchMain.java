@@ -27,12 +27,14 @@ public class CouchMain {
 			}
 		}
 
-		String dbHost = OsDaemonUtil.getBindAddress();
-		int dbPort = OsDaemonUtil.getPort();
-		String id = OsDaemonUtil.getUuid();
-		String dbUsername = OsDaemonUtil.getProperty("vault", "username");
-		String dbPassword = OsDaemonUtil.getProperty("vault", "password");
-		if (empty(id) || empty(dbUsername) || empty(dbPassword)) {
+		CmdArgs cmdArgs = new CmdArgs();
+		cmdArgs.dbHost = OsDaemonUtil.getBindAddress();
+		cmdArgs.dbPort = OsDaemonUtil.getPort();
+		cmdArgs.id = OsDaemonUtil.getUuid();
+		cmdArgs.dbUsername = OsDaemonUtil.getProperty("vault", "username");
+		cmdArgs.dbPassword = OsDaemonUtil.getProperty("vault", "password");
+		if (empty(cmdArgs.id) || empty(cmdArgs.dbUsername)
+				|| empty(cmdArgs.dbPassword)) {
 			System.out.println("Missing uuid, username or password");
 			System.exit(1);
 		}
@@ -43,8 +45,8 @@ public class CouchMain {
 			}
 		};
 
-		Injector injector = Guice.createInjector(new GuiceModule(dbHost,
-				dbPort, dbUsername, dbPassword, id, quitter));
+		Injector injector = Guice.createInjector(new GuiceModule(cmdArgs,
+				quitter));
 		injector.getInstance(Sentinel.class).run();
 	}
 

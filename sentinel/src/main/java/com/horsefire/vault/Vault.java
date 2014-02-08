@@ -31,7 +31,7 @@ public class Vault {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Options options = getOptions(args);
+		CmdArgs options = getOptions(args);
 		if (options == null) {
 			return;
 		}
@@ -54,15 +54,14 @@ public class Vault {
 			}
 		};
 
-		Injector injector = Guice.createInjector(new GuiceModule(
-				options.dbHost, options.dbPort, options.dbUsername,
-				options.dbPassword, options.id, quitter));
+		Injector injector = Guice.createInjector(new GuiceModule(options,
+				quitter));
 		injector.getInstance(Sentinel.class).run();
 	}
 
-	private static Options getOptions(String[] args) {
+	private static CmdArgs getOptions(String[] args) {
 		try {
-			Options options = new Options();
+			CmdArgs options = new CmdArgs();
 			JCommander jc = new JCommander(options, args);
 			jc.setProgramName("java -jar filecabinet.jar");
 

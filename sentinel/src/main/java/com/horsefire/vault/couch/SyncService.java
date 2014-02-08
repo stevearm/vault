@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
+import com.horsefire.vault.CmdArgs;
 import com.horsefire.vault.CouchDbClientFactory;
 import com.horsefire.vault.SimpleHttpClient;
 
@@ -33,10 +33,10 @@ public class SyncService implements Runnable {
 	private final SimpleHttpClient m_simpleClient;
 
 	@Inject
-	public SyncService(CouchDbClientFactory factory, @Named("id") String id,
+	public SyncService(CouchDbClientFactory factory, CmdArgs cmdArgs,
 			SimpleHttpClient simpleClient) {
 		m_factory = factory;
-		m_id = id;
+		m_id = cmdArgs.id;
 		m_simpleClient = simpleClient;
 	}
 

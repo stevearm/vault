@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
+import com.horsefire.vault.CmdArgs;
 import com.horsefire.vault.CouchDbClientFactory;
 import com.horsefire.vault.SimpleHttpClient;
 import com.horsefire.vault.Vault;
@@ -34,17 +34,14 @@ public class LocalDataService implements Runnable {
 	private final SimpleHttpClient m_simpleClient;
 
 	@Inject
-	public LocalDataService(CouchDbClientFactory factory,
-			@Named("dbHost") String dbHost, @Named("dbPort") Integer dbPort,
-			@Named("dbUsername") String dbUsername,
-			@Named("dbPassword") String dbPassword, @Named("id") String id,
+	public LocalDataService(CouchDbClientFactory factory, CmdArgs cmdArgs,
 			SimpleHttpClient simpleClient) {
 		m_factory = factory;
-		m_dbHost = dbHost;
-		m_dbPort = dbPort;
-		m_dbUsername = dbUsername;
-		m_dbPassword = dbPassword;
-		m_id = id;
+		m_dbHost = cmdArgs.dbHost;
+		m_dbPort = cmdArgs.dbPort;
+		m_dbUsername = cmdArgs.dbUsername;
+		m_dbPassword = cmdArgs.dbPassword;
+		m_id = cmdArgs.id;
 		m_simpleClient = simpleClient;
 	}
 

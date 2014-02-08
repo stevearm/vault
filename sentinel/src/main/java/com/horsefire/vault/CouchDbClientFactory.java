@@ -6,7 +6,6 @@ import org.lightcouch.CouchDbProperties;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
 
 public class CouchDbClientFactory {
 
@@ -17,15 +16,12 @@ public class CouchDbClientFactory {
 	private final Provider<GsonBuilder> m_gsonBuilderProvider;
 
 	@Inject
-	public CouchDbClientFactory(@Named("dbHost") String dbHost,
-			@Named("dbPort") Integer dbPort,
-			@Named("dbUsername") String dbUsername,
-			@Named("dbPassword") String dbPassword,
+	public CouchDbClientFactory(CmdArgs cmdArgs,
 			Provider<GsonBuilder> gsonBuilderProvider) {
-		m_dbHost = dbHost;
-		m_dbPort = dbPort.intValue();
-		m_dbUsername = dbUsername;
-		m_dbPassword = dbPassword;
+		m_dbHost = cmdArgs.dbHost;
+		m_dbPort = cmdArgs.dbPort;
+		m_dbUsername = cmdArgs.dbUsername;
+		m_dbPassword = cmdArgs.dbPassword;
 		m_gsonBuilderProvider = gsonBuilderProvider;
 	}
 
