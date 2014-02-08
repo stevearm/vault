@@ -28,6 +28,12 @@ public class CmdArgs {
 	@Parameter(names = { "--dbPassword" }, description = "Password for connecting to vault", required = true)
 	public String dbPassword;
 
+	@Parameter(names = { "--dbVaultName" }, description = "Public db name")
+	public String dbVault = "vault";
+
+	@Parameter(names = { "--dbVaultDbName" }, description = "Private db name")
+	public String dbVaultDb = "vaultdb";
+
 	@Parameter(names = { "--id" }, description = "The id of this vault", required = true)
 	public String id;
 

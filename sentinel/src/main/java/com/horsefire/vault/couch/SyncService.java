@@ -30,6 +30,8 @@ public class SyncService implements Runnable {
 
 	private final CouchDbClientFactory m_factory;
 	private final String m_id;
+	private final String m_vaultName;
+	private final String m_vaultDbName;
 	private final SimpleHttpClient m_simpleClient;
 
 	@Inject
@@ -37,12 +39,14 @@ public class SyncService implements Runnable {
 			SimpleHttpClient simpleClient) {
 		m_factory = factory;
 		m_id = cmdArgs.id;
+		m_vaultName = cmdArgs.dbVault;
+		m_vaultDbName = cmdArgs.dbVaultDb;
 		m_simpleClient = simpleClient;
 	}
 
 	public void run() {
 		LOG.info("Starting sync");
-		CouchDbClient client = m_factory.get("vaultdb");
+		CouchDbClient client = m_factory.get(m_vaultDbName);
 		try {
 			VaultDocument doc = client.find(VaultDocument.class, m_id);
 
@@ -113,8 +117,8 @@ public class SyncService implements Runnable {
 			return;
 		}
 
-		sync(couchClient, target, "vault", new String[] { "_design/ui" });
-		sync(couchClient, target, "vaultdb", null);
+		sync(couchClient, target, m_vaultName, new String[] { "_design/ui" });
+		sync(couchClient, target, m_vaultDbName, null);
 
 		for (String db : dbs) {
 			if (!target.dbs.contains(db)) {
