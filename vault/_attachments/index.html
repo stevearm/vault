@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>Vault</title>
-		<style type="text/css">
-		</style>
-	</head>
-	<body>
-		<div id="login"> </div>
-		<div><a href="vaults.html">VAULTS</a></div>
-		<div><a href="apps.html">APPS</a></div>
+<html lang="en" ng-app="vault">
+    <head>
+        <meta charset="utf-8" />
+        <title>Vault</title>
+        <link rel="stylesheet" type="text/css" href="lib/bootstrap-3.0.3/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="css/main.css"/>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation" ng-controller="HeaderCtrl">
+            <div class="container">
+                <a class="navbar-brand" href="#/">Vault</a>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a active-tab="1" href="#/">Dashboard</a></li>
+                    <li><a ng-click="logout()" href="#/login">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
 
-		<script src="/_utils/script/json2.js"></script>
-		<script src="/_utils/script/sha1.js"></script>
-		<script src="/_utils/script/base64.js"></script>
-		<script src="/_utils/script/jquery.js"></script>
-		<script src="/_utils/script/jquery.couch.js"></script>
-		<script src="vendor/couchapp/md5.js"></script>
-		<script src="vendor/couchapp/jquery.mustache.js"></script>
-		<script src="vendor/couchapp/jquery.couchLogin.js"></script>
-		<script type="text/javascript">
-$(function(){
-	$("#login").couchLogin({
-		loggedIn : function(userCtx) {
-			alert("hello "+userCtx.name);
-		}, 
-		loggedOut : function() {
-			alert("bye bye");
-		}
-	});
-});
-		</script>
-	</body>
+        <div class="container">
+            <div ng-view></div>
+        </div>
+
+        <script src="lib/angular-1.2.10/angular.min.js"></script>
+        <script src="lib/angular-1.2.10/angular-resource.min.js"></script>
+        <script src="lib/angular-1.2.10/angular-route.min.js"></script>
+        <script src="lib/ui-bootstrap-tpls-0.10.0.min.js"></script>
+
+        <script src="js/controllers.js"></script>
+        <script src="js/directives.js"></script>
+        <script src="js/factories.js"></script>
+        <script src="js/services.js"></script>
+        <script src="js/app.js"></script>
+    </body>
 </html>

@@ -1,0 +1,6 @@
+/* Fix a gap in ui-bootstrap's styling */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+body {
+    padding-top: 70px;
+}

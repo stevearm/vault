@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Vault</title>
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+		<div id="login"> </div>
+		<div><a href="vaults.html">VAULTS</a></div>
+		<div><a href="apps.html">APPS</a></div>
+
+		<script src="/_utils/script/json2.js"></script>
+		<script src="/_utils/script/sha1.js"></script>
+		<script src="/_utils/script/base64.js"></script>
+		<script src="/_utils/script/jquery.js"></script>
+		<script src="/_utils/script/jquery.couch.js"></script>
+		<script src="vendor/couchapp/md5.js"></script>
+		<script src="vendor/couchapp/jquery.mustache.js"></script>
+		<script src="vendor/couchapp/jquery.couchLogin.js"></script>
+		<script type="text/javascript">
+$(function(){
+	$("#login").couchLogin({
+		loggedIn : function(userCtx) {
+			alert("hello "+userCtx.name);
+		}, 
+		loggedOut : function() {
+			alert("bye bye");
+		}
+	});
+});
+		</script>
+	</body>
+</html>
