@@ -1,5 +1,12 @@
+# Eclipse project junk
 /sentinel/.classpath
 /sentinel/.project
 /sentinel/.settings
-/sentinel/target
 /sentinel/*.launch
+
+# Maven junk
+/sentinel/target
+
+# Password files
+/vault/.couchapprc
+/vaultdb/.couchapprc
