@@ -89,4 +89,11 @@ angular.module("vault.services", [])
                 + ":" + pad(tzo % 60);
         };
     }
+])
+
+.service("CurrentVaultServiceDeferred", [
+    "$http", "CouchService",
+    function($http, CouchService) {
+        return $http.get("/" + CouchService.currentDb() + "/id");
+    }
 ]);

@@ -16,7 +16,10 @@ angular.module("vault", [
         $routeProvider
         .when("/", {
             templateUrl:    "partials/home.html",
-            controller:     "HomeCtrl"
+            controller:     "HomeCtrl",
+            resolve: {
+                Vault: ["VaultDeferred", function(VaultDeferred) { return VaultDeferred; }]
+            }
         })
         .when("/login", {
             templateUrl:    "partials/login.html",
