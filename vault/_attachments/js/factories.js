@@ -23,19 +23,6 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
 
             // From here on, act like normal factory that had CurrentVault injected
 
-            var cleanVault = function(vault) {
-                vault.type = vault.type || "vault";
-                vault.dbs = vault.dbs || [];
-                vault.signature = vault.signature || null;
-                vault.priority = function() {
-                    if ("addressable" in this) {
-                        return this.addressable.priority || 0;
-                    }
-                    return 0;
-                };
-                return vault;
-            };
-
             var db = "/" + CurrentVault.vaultDbName + "/"
             var Vault = $resource(db + ":vaultId", {vaultId:"@_id", vaultRev:"@_rev"}, {
                 query: {
@@ -47,7 +34,7 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
                         data = JSON.parse(data);
                         if (data.rows) {
                             for (var i = 0; i < data.rows.length; i++) {
-                                vaults.push(cleanVault(data.rows[i].doc));
+                                vaults.push(data.rows[i].doc);
                             }
                         }
                         return vaults;
@@ -72,6 +59,14 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
                     original_object._rev = data.rev;
                 };}(this));
             };
+
+            Vault.prototype.priority = function() {
+                if ("addressable" in this) {
+                    return this.addressable.priority || 0;
+                }
+                return 0;
+            };
+
             return Vault;
         });
     }];

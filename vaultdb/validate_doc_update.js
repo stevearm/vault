@@ -14,8 +14,8 @@ function(newDoc, oldDoc, userCtx) {
 	switch (newDoc.type) {
 		case "vault":
 			require(newDoc, "name");
-			require(newDoc, "dbs");
 			if (!Array.isArray(newDoc.dbs)) { fail("dbs must be an array"); }
+			if (typeof(newDoc.signature) === "undefined") { fail("signatures field must exist, even if null"); }
 			break;
 		case "app":
 			require(newDoc, "name");

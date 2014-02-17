@@ -76,21 +76,12 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
             }
         };
 
-        var cleanVault = function(vault) {
-            vault.type = vault.type || "vault";
-            vault.dbs = vault.dbs || [];
-            vault.signature = vault.signature || null;
-            vault.priority = function() {
-                if ("addressable" in this) {
-                    return this.addressable.priority || 0;
-                }
-                return 0;
-            };
-            return vault;
-        };
-
         $scope.newVault = function() {
-            $scope.currentVault = cleanVault(new Vault());
+            $scope.currentVault = new Vault({
+                type: "vault",
+                dbs: [],
+                signature: null
+            });
         }
         $scope.newVault();
 
