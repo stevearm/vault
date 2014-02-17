@@ -1,12 +1,27 @@
 "use strict";
 
-angular.module("vault.factories", [])
+angular.module("vault.factories", [ "ngResource", "vault.services" ])
 
-.factory("VaultDeferred", [
-    "$resource", "$http", "CurrentVaultServiceDeferred",
-    function($resource, $http, CurrentVaultServiceDeferred) {
-        return CurrentVaultServiceDeferred.then(function(data) {
-            var CurrentVaultService = data.data;
+.provider("CurrentVault", function() {
+    var deferred = null;
+    this.getDeferred = function($http, CouchService) {
+        if (deferred == null) { deferred = $http.get("/" + CouchService.currentDb() + "/id"); }
+        return deferred;
+    };
+    this.$get = [ "$http", "CouchService", function(that) { return function($http, CouchService) {
+        return that.getDeferred($http, CouchService).then(function(data) {
+            return data.data;
+        });
+    }}(this)];
+})
+
+.provider("Vault", [ "CurrentVaultProvider", function(CurrentVaultProvider) { this.$get = [
+    "$http", "CouchService", "$resource",
+    function($http, CouchService, $resource) {
+        return CurrentVaultProvider.getDeferred($http, CouchService).then(function(data) {
+            var CurrentVault = data.data
+
+            // From here on, act like normal factory that had CurrentVault injected
 
             var cleanVault = function(vault) {
                 vault.type = vault.type || "vault";
@@ -21,7 +36,7 @@ angular.module("vault.factories", [])
                 return vault;
             };
 
-            var db = "/" + CurrentVaultService.vaultDbName + "/"
+            var db = "/" + CurrentVault.vaultDbName + "/"
             var Vault = $resource(db + ":vaultId", {vaultId:"@_id", vaultRev:"@_rev"}, {
                 query: {
                     method: "GET",
@@ -59,20 +74,5 @@ angular.module("vault.factories", [])
             };
             return Vault;
         });
-    }
-])
-
-.factory("UnauthenticatedInterceptor", [
-    "$q", "$location",
-    function($q, $location) {
-        return {
-            responseError: function(rejection) {
-                if (rejection.status === 401) {
-                    $location.path( "/login" );
-                    return;
-                }
-                return $q.reject(rejection);
-            }
-        };
-    }
-]);
+    }];
+}]);

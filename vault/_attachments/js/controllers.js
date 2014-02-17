@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module("vault.controllers", [])
+angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
 
 .controller("HeaderCtrl", [
     "$scope", "$location", "CouchService",

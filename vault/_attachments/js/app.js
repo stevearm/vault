@@ -2,12 +2,24 @@
 
 angular.module("vault", [
     "ngRoute",
-    "ngResource",
     "ui.bootstrap",
     "vault.controllers",
-    "vault.directives",
-    "vault.factories",
-    "vault.services"
+    "vault.directives"
+])
+
+.factory("UnauthenticatedInterceptor", [
+    "$q", "$location",
+    function($q, $location) {
+        return {
+            responseError: function(rejection) {
+                if (rejection.status === 401) {
+                    $location.path( "/login" );
+                    return;
+                }
+                return $q.reject(rejection);
+            }
+        };
+    }
 ])
 
 .config([
@@ -18,7 +30,7 @@ angular.module("vault", [
             templateUrl:    "partials/home.html",
             controller:     "HomeCtrl",
             resolve: {
-                Vault: ["VaultDeferred", function(VaultDeferred) { return VaultDeferred; }]
+                Vault: ["Vault", function(Vault) { return Vault; }]
             }
         })
         .when("/login", {
