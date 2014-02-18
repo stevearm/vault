@@ -30,7 +30,22 @@ angular.module("vault", [
             templateUrl:    "partials/home.html",
             controller:     "HomeCtrl",
             resolve: {
-                Vault: ["Vault", function(Vault) { return Vault; }]
+                CurrentVault:   ["CurrentVault", function(CurrentVault) { return CurrentVault; }],
+                Vault:          ["Vault", function(Vault) { return Vault; }]
+            }
+        })
+        .when("/vaults", {
+            templateUrl:    "partials/vaultList.html",
+            controller:     "VaultListCtrl",
+            resolve: {
+                Vault:          ["Vault", function(Vault) { return Vault; }]
+            }
+        })
+        .when("/vault/:id?", {
+            templateUrl:    "partials/vault.html",
+            controller:     "VaultCtrl",
+            resolve: {
+                Vault:          ["Vault", function(Vault) { return Vault; }]
             }
         })
         .when("/login", {

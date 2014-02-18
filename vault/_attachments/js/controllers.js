@@ -23,6 +23,21 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
 ])
 
 .controller("HomeCtrl", [
+    "$scope", "$http", "Vault", "CurrentVault",
+    function($scope, $http, Vault, CurrentVault) {
+        $scope.me = Vault.get({ id: CurrentVault.vaultId}, function() {
+            $scope.couchSig = $http.get("/").success(function(data) {
+                $scope.isValidSig = angular.equals($scope.me.signature, data);
+                $scope.me.signature = data;
+            });
+        });
+        $scope.fixSig = function() {
+            $scope.me.$save(function() { $scope.isValidSig = true; });
+        };
+    }
+])
+
+.controller("VaultListCtrl", [
     "$scope", "$http", "Vault",
     function($scope, $http, Vault) {
         $scope.cappedStringify = function(object, maxLength) {
@@ -132,5 +147,36 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
             }
             vault.$save();
         }
+    }
+])
+
+.controller("VaultCtrl", [
+    "$scope", "$routeParams", "$window", "Vault",
+    function($scope, $routeParams, $window, Vault) {
+        var id = $routeParams.id;
+        if (id) {
+            $scope.vault = Vault.get({ id: id });
+        } else {
+            $scope.vault = new Vault();
+        }
+
+        $scope.toggleAddressable = function() {
+            if ("addressable" in $scope.vault) {
+                delete $scope.vault.addressable;
+            } else {
+                $scope.vault.addressable = { enabled: false };
+            }
+        }
+
+        $scope.save = function() {
+            $scope.vault.$save(function() {
+                $window.history.back();
+            });
+        };
+        $scope.delete = function() {
+            $scope.vault.$delete(function() {
+                $window.history.back();
+            });
+        };
     }
 ]);

@@ -24,7 +24,7 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
             // From here on, act like normal factory that had CurrentVault injected
 
             var db = "/" + CurrentVault.vaultDbName + "/"
-            var Vault = $resource(db + ":vaultId", {vaultId:"@_id", vaultRev:"@_rev"}, {
+            var Vault = $resource(db + ":id", {id:"@_id", rev:"@_rev"}, {
                 query: {
                     method: "GET",
                     isArray: true,
@@ -42,11 +42,12 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
                 },
                 delete: {
                     method: "DELETE",
-                    url: db + ":vaultId?rev=:vaultRev"
+                    url: db + ":id?rev=:rev"
                 }
             });
 
-            Vault.prototype.$save = function() {
+            Vault.prototype.$save = function(callback) {
+                if (!callback) { callback = function(){}; }
                 var config = { data: this, method: "POST", url: db };
                 if ("_id" in this) {
                     config.method = "PUT";
@@ -56,7 +57,9 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
                     console.log("Error saving", data, status, headers, config);
                     window.alert("Error saving: " + data.reason);
                 }).success(function(original_object){ return function(data, status, headers, config) {
+                    original_object._id = data.id;
                     original_object._rev = data.rev;
+                    callback();
                 };}(this));
             };
 
