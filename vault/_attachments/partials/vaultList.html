@@ -1,61 +1,36 @@
-<h3>Current vaults</h3>
-<table>
-    <tr>
-        <th rowspan="2">Name</th>
-        <th colspan="3">Addressable info</th>
-        <th rowspan="2">Signature</th>
-        <th rowspan="2">Sentinel</th>
-        <th id="db-list-header" colspan="{{ dbs().length }}">Managed dbs</th>
-    </tr>
-    <tr>
-        <th>Priority</th>
-        <th>Host</th>
-        <th>Enabled</th>
-        <th ng-repeat="db in dbs()">{{ db }}</th>
-    </tr>
-    <tr ng-repeat="vault in vaults | orderBy:'priority()':true">
-        <td ng-click="editVault(vault)">{{ vault.name }}</td>
-        <td ng-click="editVault(vault)">
-            <span ng-hide="vault.addressable">N/A</span>
-            <span ng-show="vault.addressable">#{{ vault.addressable.priority }}</span>
-        </td>
-        <td ng-click="editVault(vault)">
-            <span ng-hide="vault.addressable">N/A</span>
-            <span ng-show="vault.addressable">
-                <a href="http://{{ vault.addressable.host }}:{{ vault.addressable.port }}/vault/_design/ui/vaults.html">
-                    {{ vault.addressable.host }}:{{ vault.addressable.port }}
-                </a>
-            </span>
-        </td>
-        <td ng-click="toggleEnabled(vault)">
-            <span ng-hide="vault.addressable">N/A</span>
-            <span ng-show="vault.addressable">{{ vault.addressable.enabled || "false" }}</span>
-        </td>
-        <td ng-click="editVault(vault)">{{ cappedStringify(vault.signature, 30) }}</td>
-        <td ng-click="editVault(vault)">{{ vault.sentinel || "None" }}</td>
-        <td ng-repeat="db in dbs()" ng-click="toggleDb(vault, db)">{{ vault.dbs.indexOf(db) != -1 }}</td>
-    </tr>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Priority</th>
+            <th>Host</th>
+            <th>Enabled</th>
+            <th>Signature</th>
+            <th>Sentinel</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="vault in vaults | orderBy:'priority()':true">
+            <td><a href="#/vault/{{ vault._id }}">{{ vault.name }}</a></td>
+            <td>
+                <span ng-hide="vault.addressable">N/A</span>
+                <span ng-show="vault.addressable">#{{ vault.addressable.priority }}</span>
+            </td>
+            <td>
+                <span ng-hide="vault.addressable">N/A</span>
+                <span ng-show="vault.addressable">
+                    <a href="http://{{ vault.addressable.host }}:{{ vault.addressable.port }}/vault/_design/ui/vaults.html">
+                        {{ vault.addressable.host }}:{{ vault.addressable.port }}
+                    </a>
+                </span>
+            </td>
+            <td>
+                <span ng-show="vault.enabled()" style="color: green"><i class="glyphicon glyphicon-ok"></i></span>
+                <span ng-hide="vault.enabled()"><i class="glyphicon glyphicon-remove"></i></span>
+            </td>
+            <td>{{ cappedStringify(vault.signature, 30) }}</td>
+            <td>{{ vault.sentinel || "None" }}</td>
+        </tr>
+    </tbody>
 </table>
-<h3>Edit vaults</h3>
-<div>
-    Id:
-    <input type="text" ng-model="currentVault._id" ng-hide="currentVault._rev"/>
-    <span ng-show="currentVault._rev">{{ currentVault._id }}</span>
-</div>
-<div>Name: <input type="text" ng-model="currentVault.name"/></div>
-<div>
-    Addressable: <button ng-click="toggleAddressable()">Toggle</button>
-    <div ng-show="currentVault.addressable">
-        Host: <input type="text" ng-model="currentVault.addressable.host"/><br/>
-        Port: <input type="number" ng-model="currentVault.addressable.port"/><br/>
-        Priority: <input type="number" ng-model="currentVault.addressable.priority"/>
-    </div>
-</div>
-<div>Signature: <textarea json ng-model="currentVault.signature"></textarea></div>
-<div>Username: <input type="text" ng-model="currentVault.username"/></div>
-<div>Password: <input type="text" ng-model="currentVault.password"/></div>
-<div>
-    <button ng-click="newVault()">New</button>
-    <button ng-click="saveVault()">Save</button>
-    <button ng-click="deleteVault()">Delete</button>
-</div>
+<a href="#/vault" class="btn btn-default">Add vault</a>

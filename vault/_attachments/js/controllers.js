@@ -41,14 +41,19 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
     "$scope", "$http", "Vault",
     function($scope, $http, Vault) {
         $scope.cappedStringify = function(object, maxLength) {
-            if (!object) {
-                return "";
-            }
+            if (!object) { return ""; }
             var string = JSON.stringify(object);
             if (string.length > maxLength) { return string.substr(0, maxLength - 3) + "..."; }
             return string;
         };
 
+        $scope.vaults = Vault.query();
+    }
+])
+
+.controller("DatabaseListCtrl", [
+    "$scope", "$http", "Vault",
+    function($scope, $http, Vault) {
         $scope.vaults = Vault.query();
 
         $scope.localDbs = [];
@@ -73,70 +78,6 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
             }
             return list;
         }
-
-        var indexOf = function(vault) {
-            for (var i = 0; i < $scope.vaults.length; i++) {
-                if ($scope.vaults[i]._id == vault._id) {
-                    return i;
-                }
-            }
-            return -1;
-        };
-
-        $scope.toggleAddressable = function() {
-            if ("addressable" in $scope.currentVault) {
-                delete $scope.currentVault["addressable"];
-            } else {
-                $scope.currentVault["addressable"] = {};
-            }
-        };
-
-        $scope.newVault = function() {
-            $scope.currentVault = new Vault({
-                type: "vault",
-                dbs: [],
-                signature: null
-            });
-        }
-        $scope.newVault();
-
-        $scope.editVault = function(vault) {
-            $scope.currentVault = angular.copy(vault);
-        }
-
-        $scope.saveVault = function() {
-            if ("_rev" in $scope.currentVault) {
-                var index = indexOf($scope.currentVault);
-
-                // Persist things not in the edit form
-                $scope.currentVault._rev = $scope.vaults[index]._rev;
-                $scope.currentVault.dbs = $scope.vaults[index].dbs;
-
-                $scope.vaults[index] = $scope.currentVault;
-            } else {
-                $scope.vaults.push($scope.currentVault);
-            }
-            $scope.currentVault.$save();
-            $scope.newVault();
-        }
-
-        $scope.deleteVault = function() {
-            if ("_id" in $scope.currentVault) {
-                $scope.vaults.splice(indexOf($scope.currentVault), 1);
-                $scope.currentVault.$delete();
-            }
-            $scope.newVault();
-        }
-
-        $scope.toggleEnabled = function(vault) {
-            if (!("addressable" in vault)) { return; }
-            if ("enabled" in vault.addressable) {
-                vault.addressable.enabled = !vault.addressable.enabled;
-            } else {
-                vault.addressable.enabled = true;
-            }
-            vault.$save();
-        };
 
         $scope.toggleDb = function(vault, db) {
             var index = vault.dbs.indexOf(db);

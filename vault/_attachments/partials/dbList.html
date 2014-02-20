@@ -1,0 +1,25 @@
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th rowspan="2">Name</th>
+            <th rowspan="2">Enabled</th>
+            <th colspan="{{ dbs().length }}">Managed dbs</th>
+        </tr>
+        <tr>
+            <th ng-repeat="db in dbs()">{{ db }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="vault in vaults | orderBy:'priority()':true">
+            <td><a href="#/vault/{{ vault._id }}">{{ vault.name }}</a></td>
+            <td>
+                <span ng-show="vault.enabled()" style="color: green"><i class="glyphicon glyphicon-ok"></i></span>
+                <span ng-hide="vault.enabled()"><i class="glyphicon glyphicon-remove"></i></span>
+            </td>
+            <td ng-repeat="db in dbs()" ng-click="toggleDb(vault, db)">
+                <span ng-show="vault.dbs.indexOf(db) != -1" style="color: green"><i class="glyphicon glyphicon-ok"></i></span>
+                <span ng-hide="vault.dbs.indexOf(db) != -1"><i class="glyphicon glyphicon-remove"></i></span>
+            </td>
+        </tr>
+    </tbody>
+</table>

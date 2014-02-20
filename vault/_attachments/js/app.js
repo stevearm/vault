@@ -41,6 +41,13 @@ angular.module("vault", [
                 Vault:          ["Vault", function(Vault) { return Vault; }]
             }
         })
+        .when("/databases", {
+            templateUrl:    "partials/dbList.html",
+            controller:     "DatabaseListCtrl",
+            resolve: {
+                Vault:          ["Vault", function(Vault) { return Vault; }]
+            }
+        })
         .when("/vault/:id?", {
             templateUrl:    "partials/vault.html",
             controller:     "VaultCtrl",

@@ -45,11 +45,14 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
             };
 
             Vault.prototype.priority = function() {
-                if ("addressable" in this) {
-                    return this.addressable.priority || 0;
-                }
+                if ("addressable" in this) { return this.addressable.priority || 0; }
                 return 0;
             };
+
+            Vault.prototype.enabled = function() {
+                if ("addressable" in this) { return this.addressable.enabled || false; }
+                return false;
+            }
 
             return Vault;
         });
