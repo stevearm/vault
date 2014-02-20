@@ -25,7 +25,7 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
 .controller("HomeCtrl", [
     "$scope", "$http", "Vault", "CurrentVault",
     function($scope, $http, Vault, CurrentVault) {
-        $scope.me = Vault.get({ id: CurrentVault.vaultId}, function() {
+        $scope.me = Vault.get(CurrentVault.vaultId, function(result) {
             $scope.couchSig = $http.get("/").success(function(data) {
                 $scope.isValidSig = angular.equals($scope.me.signature, data);
                 $scope.me.signature = data;
@@ -155,7 +155,7 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
     function($scope, $routeParams, $window, Vault) {
         var id = $routeParams.id;
         if (id) {
-            $scope.vault = Vault.get({ id: id });
+            $scope.vault = Vault.get(id);
         } else {
             $scope.vault = new Vault();
         }

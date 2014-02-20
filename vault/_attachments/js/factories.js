@@ -23,44 +23,25 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
 
             // From here on, act like normal factory that had CurrentVault injected
 
-            var db = "/" + CurrentVault.vaultDbName + "/"
-            var Vault = $resource(db + ":id", {id:"@_id", rev:"@_rev"}, {
-                query: {
-                    method: "GET",
-                    isArray: true,
-                    url: db + '_design/indexes/_view/type?include_docs=true&key="vault"',
-                    transformResponse: function(data, headers) {
-                        var vaults = [];
-                        data = JSON.parse(data);
-                        if (data.rows) {
-                            for (var i = 0; i < data.rows.length; i++) {
-                                vaults.push(data.rows[i].doc);
-                            }
-                        }
-                        return vaults;
-                    }
-                },
-                delete: {
-                    method: "DELETE",
-                    url: db + ":id?rev=:rev"
-                }
-            });
+            var Vault = CouchService.couchResourceFactory({
+                type: "vault",
+                name: null,
+                dbs: [],
+                signature: null
+            }, CurrentVault.vaultDbName);
 
-            Vault.prototype.$save = function(callback) {
-                if (!callback) { callback = function(){}; }
-                var config = { data: this, method: "POST", url: db };
-                if ("_id" in this) {
-                    config.method = "PUT";
-                    config.url += this._id;
-                }
-                $http(config).error(function(data, status, headers, config) {
-                    console.log("Error saving", data, status, headers, config);
-                    window.alert("Error saving: " + data.reason);
-                }).success(function(original_object){ return function(data, status, headers, config) {
-                    original_object._id = data.id;
-                    original_object._rev = data.rev;
-                    callback();
-                };}(this));
+            Vault.query = function() {
+                var vaults = [];
+                $http.get("/" + CurrentVault.vaultDbName
+                    + "/_design/indexes/_view/type?include_docs=true&key=\"vault\""
+                ).success(function(data) {
+                    if (data.rows) {
+                        for (var i = 0; i < data.rows.length; i++) {
+                            vaults.push(new Vault(data.rows[i].doc));
+                        }
+                    }
+                });
+                return vaults;
             };
 
             Vault.prototype.priority = function() {
