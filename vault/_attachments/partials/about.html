@@ -1,8 +1,12 @@
 <h3>Current install</h3>
 
-<dl><dt>UI version</dt><dd>{{ uiVersion }}</dd></dl>
-<dl><dt>Index version</dt><dd>{{ indexVersion }}</dd></dl>
-<dl><dt>Sentinel version</dt><dd>{{ sentinelVersion }}</dd></dl>
+<p><strong>UI</strong> version {{ uiVersion }}</p>
+<p><strong>DB</strong> version {{ indexVersion }}</p>
+<p>
+    <strong>Sentinel</strong>
+    version {{ sentinelVersion }}
+    <span ng-show="sentinelRun">(last run {{ sentinelRun|date:'yyyy-MM-dd h:mm a' }})</span>
+</p>
 
 <h3>General info</h3>
 <p>Vault is an open-source project hosted on <a href="http://github.com/stevearm/vault">GitHub</a>. Special thanks to the following projects for their work that Vault is based on:
