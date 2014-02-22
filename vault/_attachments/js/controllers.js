@@ -22,6 +22,26 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
     }
 ])
 
+.controller("AboutCtrl", [
+    "$scope", "$http", "Vault", "CurrentVault", "CouchService",
+    function($scope, $http, Vault, CurrentVault, CouchService) {
+        $scope.sentinelVersion = "-";
+        Vault.get(CurrentVault.vaultId, function(result) {
+            $scope.sentinelVersion = result.sentinel;
+        });
+        $http.get(
+            "/" + CouchService.currentDb() + "/_design/" + CouchService.currentDesignDoc()
+        ).success(function(data) {
+            $scope.uiVersion = data._rev;
+        });
+        $http.get(
+            "/" + CurrentVault.vaultDbName + "/_design/indexes"
+        ).success(function(data) {
+            $scope.indexVersion = data._rev;
+        });
+    }
+])
+
 .controller("HomeCtrl", [
     "$scope", "$http", "Vault", "CurrentVault",
     function($scope, $http, Vault, CurrentVault) {

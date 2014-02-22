@@ -59,6 +59,14 @@ angular.module("vault", [
             templateUrl:    "partials/login.html",
             controller:     "LoginCtrl"
         })
+        .when("/about", {
+            templateUrl:    "partials/about.html",
+            controller:     "AboutCtrl",
+            resolve: {
+                CurrentVault:   ["CurrentVault", function(CurrentVault) { return CurrentVault; }],
+                Vault:          ["Vault", function(Vault) { return Vault; }]
+            }
+        })
         .otherwise({redirectTo: "/"});
 
         $httpProvider.interceptors.push("UnauthenticatedInterceptor");
