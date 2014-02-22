@@ -66,6 +66,62 @@ angular.module("vault.services", [])
                 callback();
             });
         };
+
+        this.couchResourceFactory = function(that) {
+            return function(defaultValues, dbName) {
+                if (!dbName) {
+                    dbName = that.currentDb();
+                }
+
+                var dbUrl = "/" + dbName + "/";
+
+                var Document = function(data) {
+                    angular.extend(this, data);
+                };
+
+                if (defaultValues) {
+                    angular.extend(Document.prototype, defaultValues);
+                }
+
+                Document.get = function(id, callback) {
+                    var doc = new Document();
+                    $http.get(dbUrl + id).success(function(data) {
+                        angular.extend(doc, data);
+                        if (callback) { callback(doc); }
+                    });
+                    return doc;
+                };
+
+                Document.prototype.$save = function(callback) {
+                    var config = { data: this, method: "POST", url: dbUrl };
+                    if ("_id" in this) {
+                        config.method = "PUT";
+                        config.url += this._id;
+                    }
+                    $http(config).error(function(data, status, headers, config) {
+                        console.log("Error saving", data, status, headers, config);
+                        window.alert("Error saving: " + data.reason);
+                    }).success(function(original_object){ return function(data, status, headers, config) {
+                        original_object._id = data.id;
+                        original_object._rev = data.rev;
+                        if (callback) { callback(); }
+                    };}(this));
+                };
+
+                Document.prototype.$delete = function(callback) {
+                    if (!callback) { callback = function(){}; }
+                    $http({
+                        method: "DELETE",
+                        url: dbUrl + this._id + "?rev=" + this._rev
+                    }).error(function(data, status, headers, config) {
+                        console.log("Error deleting", data, status, headers, config);
+                        window.alert("Error deleting: " + data.reason);
+                    }).success(callback);
+                };
+
+                return Document;
+            };
+        }(this);
     }
 ])
 
