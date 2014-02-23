@@ -1,0 +1,24 @@
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th rowspan="2">Name</th>
+            <th colspan="{{ dbs().length }}">Managed dbs</th>
+        </tr>
+        <tr>
+            <th ng-repeat="db in dbs()">{{ db }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="vault in vaults | orderBy:'priority()':true">
+            <td><a href="#/vault/{{ vault._id }}">{{ vault.name }}</a></td>
+            <td ng-repeat="db in dbs()" ng-click="toggleDb(vault, db)">
+                <i ng-click="showCode(vault, db)" class="glyphicon glyphicon-qrcode"></i>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div ng-show="qrCode">
+    <div>{{ qrCode }}</div>
+    <qrcode version="10" error-correction-level="M" size="300" data="{{qrCode}}"></qrcode>
+</div>
+<div>{{ message }}</div>

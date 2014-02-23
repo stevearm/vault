@@ -30,7 +30,7 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
                 signature: null
             }, CurrentVault.vaultDbName);
 
-            Vault.query = function() {
+            Vault.query = function(callback) {
                 var vaults = [];
                 $http.get("/" + CurrentVault.vaultDbName
                     + "/_design/indexes/_view/type?include_docs=true&key=\"vault\""
@@ -40,6 +40,7 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
                             vaults.push(new Vault(data.rows[i].doc));
                         }
                     }
+                    if (callback) { callback(vaults); }
                 });
                 return vaults;
             };

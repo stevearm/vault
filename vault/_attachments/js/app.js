@@ -3,6 +3,7 @@
 angular.module("vault", [
     "ngRoute",
     "ui.bootstrap",
+    "monospaced.qrcode",
     "vault.controllers",
     "vault.directives"
 ])
@@ -44,6 +45,13 @@ angular.module("vault", [
         .when("/databases", {
             templateUrl:    "partials/dbList.html",
             controller:     "DatabaseListCtrl",
+            resolve: {
+                Vault:          ["Vault", function(Vault) { return Vault; }]
+            }
+        })
+        .when("/barcodes", {
+            templateUrl:    "partials/barcodes.html",
+            controller:     "BarcodeListCtrl",
             resolve: {
                 Vault:          ["Vault", function(Vault) { return Vault; }]
             }
