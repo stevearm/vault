@@ -1,0 +1,25 @@
+<div class="row">
+    <div class="col-md-6">
+        Db: <select ng-model="db" ng-options="db for db in dbs"></select>
+
+        <br/><br/>
+
+        Select function
+        <small>(return true if this document needs fixing)</small>
+        <button ng-click="select()">Run</button>
+        <textarea ng-model="selectFunction" rows="10" cols="80"></textarea>
+
+        <br/><br/>
+
+        Fix function
+        <small>(fix the document)</small>
+        <button ng-click="fix()">Run on {{ selectedDocs.length }}</button>
+        <textarea ng-model="fixFunction" rows="10" cols="80"></textarea>
+    </div>
+    <div class="col-md-6">
+        <button ng-click="next();">Select next</button>
+        <button ng-click="fixCurrent();">Fix current</button>
+        <br/>
+        <pre>{{ currentDoc | json }}</pre>
+    </div>
+</div>

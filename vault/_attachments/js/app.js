@@ -56,6 +56,10 @@ angular.module("vault", [
                 Vault:          ["Vault", function(Vault) { return Vault; }]
             }
         })
+        .when("/fixer", {
+            templateUrl:    "partials/fixer.html",
+            controller:     "FixerCtrl"
+        })
         .when("/vault/:id?", {
             templateUrl:    "partials/vault.html",
             controller:     "VaultCtrl",

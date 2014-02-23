@@ -157,6 +157,71 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
     }
 ])
 
+.controller("FixerCtrl", [
+    "$scope", "$http", "CouchService",
+    function($scope, $http, CouchService) {
+        $scope.selectFunction = "function(doc) {\n  return !(\"type\" in doc);\n}";
+        $scope.fixFunction = "function(doc) {\n  doc.type = \"event\";\n}";
+
+        // Test values
+        $scope.selectFunction = "function(doc) {\n  return doc.type == \"vault\";\n}";
+        $scope.fixFunction = "function(doc) {\n  doc.test = \"newVal\";\n}";
+
+        $scope.dbs = [];
+        $http.get("/_all_dbs").success(function(data) {
+            $scope.dbs = data;
+            $scope.db = data[0];
+        });
+
+        $scope.selectedDocs = [];
+        $scope.currentDoc = null;
+        var currentDocOffset = 0;
+
+        $scope.select = function() {
+            $http.post("/" + $scope.db + "/_temp_view", {
+                map: "function(doc){ var test=" + $scope.selectFunction + "; if (test(doc)) { emit(null,doc); }}"
+            }).success(function(data) {
+                $scope.selectedDocs = data.rows.map(function(e) {
+                    return e.value;
+                });
+                currentDocOffset = 0;
+                $scope.next();
+            });
+        };
+
+        var currentFixFunction = function() {
+            var globalFixFunction = null;
+            eval("globalFixFunction=" + $scope.fixFunction);
+            return globalFixFunction;
+        };
+
+        $scope.fix = function() {
+            var fix = currentFixFunction();
+            $scope.selectedDocs.forEach(function(e) {
+                fix(e);
+                $http.put("/" + $scope.db + "/" + e._id, e);
+            });
+            $scope.selectedDocs = [];
+            $scope.next();
+        }
+
+        $scope.next = function() {
+            if ($scope.selectedDocs.length > 0) {
+                if (currentDocOffset == $scope.selectedDocs.length) {
+                    currentDocOffset = 0;
+                }
+                $scope.currentDoc = $scope.selectedDocs[currentDocOffset++];
+            } else {
+                $scope.currentDoc = null;
+            }
+        }
+
+        $scope.fixCurrent = function() {
+            globalFixFunction()($scope.currentDoc);
+        };
+    }
+])
+
 .controller("VaultCtrl", [
     "$scope", "$routeParams", "$window", "Vault",
     function($scope, $routeParams, $window, Vault) {
