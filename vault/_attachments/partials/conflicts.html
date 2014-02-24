@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col-md-6">
+        Db: <select ng-model="db" ng-options="db for db in dbs" ng-change="newDb()"></select>
+    </div>
+    <div class="col-md-6">
+        Conflicts: {{ conflicts.length }}
+        <select ng-model="docId" ng-options="conflict.id for conflict in conflicts" ng-change="newConflict()"></select>
+    </div>
+</div>
+<div class="row" ng-show="conflictedDoc">
+    <div class="col-md-12">
+        <div>
+            <h3>Current doc - {{ conflictedDoc.id }}</h3>
+            Rev: {{ conflictedDoc.current.rev }}
+            <small><a href="/_utils/document.html?{{ db }}/{{ conflictedDoc.id }}" target="_new">EDIT</a></small>
+            <pre>{{ conflictedDoc.current.doc |json }}</pre>
+        </div>
+        <div ng-repeat="rev in conflictedDoc.revs">
+            Rev: {{ rev.rev }} <button ng-click="delete(conflictedDoc.id, rev.rev);">Delete</button>
+            <pre>{{ rev.doc |json }}</pre>
+        </div>
+    </div>
+</div>

@@ -60,6 +60,10 @@ angular.module("vault", [
             templateUrl:    "partials/fixer.html",
             controller:     "FixerCtrl"
         })
+        .when("/conflicts", {
+            templateUrl:    "partials/conflicts.html",
+            controller:     "ConflictsCtrl"
+        })
         .when("/vault/:id?", {
             templateUrl:    "partials/vault.html",
             controller:     "VaultCtrl",

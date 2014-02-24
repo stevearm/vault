@@ -163,10 +163,6 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
         $scope.selectFunction = "function(doc) {\n  return !(\"type\" in doc);\n}";
         $scope.fixFunction = "function(doc) {\n  doc.type = \"event\";\n}";
 
-        // Test values
-        $scope.selectFunction = "function(doc) {\n  return doc.type == \"vault\";\n}";
-        $scope.fixFunction = "function(doc) {\n  doc.test = \"newVal\";\n}";
-
         $scope.dbs = [];
         $http.get("/_all_dbs").success(function(data) {
             $scope.dbs = data;
@@ -248,6 +244,63 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
         $scope.delete = function() {
             $scope.vault.$delete(function() {
                 $window.history.back();
+            });
+        };
+    }
+])
+
+.controller("ConflictsCtrl", [
+    "$scope", "$http",
+    function($scope, $http) {
+        $scope.dbs = [];
+        $http.get("/_all_dbs").success(function(data) {
+            $scope.dbs = data;
+            $scope.db = data[0];
+        });
+
+        $scope.conflicts = [];
+
+        $scope.newDb = function() {
+            $scope.docId = null;
+            $scope.conflictedDoc = null;
+            $scope.conflicts = [];
+            $http.post("/" + $scope.db + "/_temp_view", {
+                map: "function(doc){ if (doc._conflicts) { emit(doc._rev, doc._conflicts); } }"
+            }).success(function(data) {
+                $scope.conflicts = data.rows.map(function(e) {
+                    return { id: e.id, current: e.key, revs: e.value };
+                });
+                $scope.newConflict();
+            });
+        };
+
+        $scope.newConflict = function() {
+            if (!$scope.docId) {
+                $scope.conflictedDoc = null;
+                return;
+            }
+
+            var getDocRev = function(db, id, rev) {
+                var result = { rev: rev };
+                $http.get("/" + db + "/" + id + "?rev=" + rev).success(function(data) {
+                    result.doc = data;
+                });
+                return result;
+            }
+
+            $scope.conflictedDoc = {
+                id:         $scope.docId.id,
+                current:    getDocRev($scope.db, $scope.docId.id, $scope.docId.current),
+                revs:       $scope.docId.revs.map(function(e) {
+                    return getDocRev($scope.db, $scope.docId.id, e);
+                })
+            };
+        };
+
+        $scope.delete = function(id, rev) {
+            $http({
+                method: "DELETE",
+                url:    "/" + $scope.db + "/" + id + "?rev=" + rev
             });
         };
     }
