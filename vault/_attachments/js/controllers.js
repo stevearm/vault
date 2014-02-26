@@ -220,8 +220,8 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
 ])
 
 .controller("VaultCtrl", [
-    "$scope", "$routeParams", "$window", "Vault",
-    function($scope, $routeParams, $window, Vault) {
+    "$scope", "$routeParams", "$window", "$http", "Vault", "CouchService", "CurrentVault",
+    function($scope, $routeParams, $window, $http, Vault, CouchService, CurrentVault) {
         var id = $routeParams.id;
         if (id) {
             $scope.vault = Vault.get(id);
@@ -247,6 +247,12 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
                 $window.history.back();
             });
         };
+        $scope.setAsCurrent = function() {
+            CurrentVault.vaultId = $scope.vault._id;
+            $http.put("/" + CouchService.currentDb() + "/id", CurrentVault).then(function() {
+                $window.location.reload();
+            })
+        }
     }
 ])
 
