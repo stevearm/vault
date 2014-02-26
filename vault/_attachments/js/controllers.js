@@ -58,8 +58,9 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
 ])
 
 .controller("VaultListCtrl", [
-    "$scope", "$http", "Vault",
-    function($scope, $http, Vault) {
+    "$scope", "$http", "Vault", "CurrentVault",
+    function($scope, $http, Vault, CurrentVault) {
+        $scope.currentVaultId = CurrentVault.vaultId;
         $scope.cappedStringify = function(object, maxLength) {
             if (!object) { return ""; }
             var string = JSON.stringify(object);

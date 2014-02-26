@@ -39,6 +39,7 @@ angular.module("vault", [
             templateUrl:    "partials/vaultList.html",
             controller:     "VaultListCtrl",
             resolve: {
+                CurrentVault:   ["CurrentVault", function(CurrentVault) { return CurrentVault; }],
                 Vault:          ["Vault", function(Vault) { return Vault; }]
             }
         })
