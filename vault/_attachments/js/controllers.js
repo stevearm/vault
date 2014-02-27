@@ -3,11 +3,18 @@
 angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
 
 .controller("HeaderCtrl", [
-    "$scope", "$location", "CouchService",
-    function($scope, $location, CouchService) {
+    "$scope", "$location", "CouchService", "ExternalVaultVarsService",
+    function($scope, $location, CouchService, ExternalVaultVarsService) {
         $scope.logout = function() {
             CouchService.logout();
         };
+        if ($location.host() != "localhost" && $location.host() != "127.0.0.1") {
+            ExternalVaultVarsService.findLocalVault().then(function(url) {
+                if (url != null) {
+                    $scope.localVaultUrl = url;
+                }
+            });
+        }
     }
 ])
 

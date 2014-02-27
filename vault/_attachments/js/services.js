@@ -1,6 +1,38 @@
 "use strict";
 
+var externalVaultVars = function() {
+    var hasLocalVault = false;
+
+    return {
+        hasLocalVault: function(hasVault) {
+            if (typeof(hasVault) === "undefined") {
+                return hasLocalVault;
+            }
+            hasLocalVault = hasVault;
+        }
+    };
+}();
+
 angular.module("vault.services", [])
+
+.service("ExternalVaultVarsService", [
+    "$q",
+    function($q) {
+        this.findLocalVault = function() {
+            var deferred = $q.defer();
+
+            // For now this is just hardcoded to dupliate the url used in index.html
+            // It should be fixed to dynamically add <script> tags, cycling through localhost
+            // and 127.0.0.1, along with trying any non-standard ports listed in the vault db
+            if (externalVaultVars.hasLocalVault()) {
+                deferred.resolve("http://localhost:5984/vault/_design/ui/index.html");
+            } else {
+                deferred.resolve(null);
+            }
+            return deferred.promise;
+        }
+    }
+])
 
 .service("CouchService", [
     "$http",
@@ -58,7 +90,7 @@ angular.module("vault.services", [])
 
         this.logout = function(callback) {
             if (!callback) { callback = function(){}; }
-            return $http ({
+            $http ({
                 method:     "DELETE",
                 url:        "/_session"
             })
