@@ -35,6 +35,13 @@ angular.module("vault", [
                 Vault:          ["Vault", function(Vault) { return Vault; }]
             }
         })
+        .when("/apps", {
+            templateUrl:    "partials/appsList.html",
+            controller:     "AppListCtrl",
+            resolve: {
+                CurrentVault:   ["CurrentVault", function(CurrentVault) { return CurrentVault; }]
+            }
+        })
         .when("/vaults", {
             templateUrl:    "partials/vaultList.html",
             controller:     "VaultListCtrl",

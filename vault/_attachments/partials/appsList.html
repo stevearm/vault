@@ -1,0 +1,4 @@
+<ul>
+    <li ng-repeat="app in apps"><a href="/{{ app.db }}/_design/{{ app.ui }}">{{ app.name }}</a></li>
+    <li ng-hide="apps">No installed apps</li>
+</ul>

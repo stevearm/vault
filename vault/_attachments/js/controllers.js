@@ -57,6 +57,20 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
     }
 ])
 
+.controller("AppListCtrl", [
+    "$scope", "$http", "CurrentVault",
+    function($scope, $http, CurrentVault) {
+        $scope.apps = [];
+        $http.get("/" + CurrentVault.vaultDbName
+            + "/_design/indexes/_view/type?include_docs=true&key=\"app\""
+        ).success(function(data) {
+            $scope.apps = data.rows.map(function(e) {
+                return e.doc;
+            });
+        });
+    }
+])
+
 .controller("VaultListCtrl", [
     "$scope", "$http", "Vault", "CurrentVault",
     function($scope, $http, Vault, CurrentVault) {
