@@ -1,4 +1,4 @@
-# Vault
+# Vault [![Build Status](https://travis-ci.org/stevearm/vault.png?branch=master)](https://travis-ci.org/stevearm/vault)
 
 Vault is a distributed information keeping system that runs on top of CouchDB. It is a Java daemon that syncs between multiple vaults.
 
