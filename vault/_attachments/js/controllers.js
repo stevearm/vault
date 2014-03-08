@@ -6,7 +6,7 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
     "$scope", "$location", "CouchService", "ExternalVaultVarsService",
     function($scope, $location, CouchService, ExternalVaultVarsService) {
         $scope.logout = function() {
-            CouchService.logout();
+            CouchService.couchServer.logout();
         };
         if ($location.host() != "localhost" && $location.host() != "127.0.0.1") {
             ExternalVaultVarsService.findLocalVault().then(function(url) {
@@ -22,8 +22,13 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
     "$scope", "$location", "CouchService",
     function($scope, $location, CouchService) {
         $scope.login = function() {
-            CouchService.login($scope.username, $scope.password, function() {
-                $location.path("/");
+            $scope.message = "";
+            CouchService.couchServer.login($scope.username, $scope.password).then(function() {
+                if (CouchService.couchServer.userCtx && CouchService.couchServer.userCtx.name) {
+                    $location.path("/");
+                } else {
+                    $scope.message = "Login failure, try again";
+                }
             });
         };
     }

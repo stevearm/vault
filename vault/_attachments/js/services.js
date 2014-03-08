@@ -13,7 +13,7 @@ var externalVaultVars = function() {
     };
 }();
 
-angular.module("vault.services", [])
+angular.module("vault.services", [ "CornerCouch" ])
 
 .service("ExternalVaultVarsService", [
     "$q",
@@ -35,8 +35,10 @@ angular.module("vault.services", [])
 ])
 
 .service("CouchService", [
-    "$http",
-    function($http) {
+    "$http", "cornercouch",
+    function($http, cornercouch) {
+        this.couchServer = cornercouch();
+
         this.currentDb = function() {
             return document.location.pathname.split("/")[1];
         };
@@ -74,30 +76,6 @@ angular.module("vault.services", [])
                 return "/" + that.currentDb() + "/" + docId + "/" + attachmentName;
             };
         }(this);
-
-        this.login = function(usr, pwd, callback) {
-            if (!callback) { callback = function(){}; }
-            $http({
-                method:     "POST",
-                url:        "/_session",
-                headers:    { "Content-Type": "application/x-www-form-urlencoded" },
-                data:       "name=" + encodeURIComponent(usr) + "&password=" + encodeURIComponent(pwd).replace(/%20/g, "+")
-            })
-            .success(function(data) {
-                callback(data.roles);
-            });
-        };
-
-        this.logout = function(callback) {
-            if (!callback) { callback = function(){}; }
-            $http ({
-                method:     "DELETE",
-                url:        "/_session"
-            })
-            .success(function() {
-                callback();
-            });
-        };
 
         this.couchResourceFactory = function(that) {
             return function(defaultValues, dbName) {

@@ -29,7 +29,7 @@ Vault is licenced under [Apache Licence 2.0][apache20]. It contains libraries li
 
 * [Apache Licence 2.0][apache20] (Gson, Guava, Joda-Time, JCommander, LightCouch)
 * [Gnu Lesser General Public Licence LGPL][lgpl] (Logback)
-* MIT Licences ([AngularJS][mit-angular], [AngularUI][mit-angularui], [Bootstrap][mit-bootstrap], SLF4J, [QR Code Generator][qrcode-generator])
+* MIT Licences ([AngularJS][mit-angular], [AngularUI][mit-angularui], [Bootstrap][mit-bootstrap], SLF4J, [QR Code Generator][qrcode-generator], cornercouch)
 
 As the LGPL libraries were not modified in any way, they can be released under non-GPL licences.
 
