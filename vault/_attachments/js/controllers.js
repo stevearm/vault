@@ -1,12 +1,18 @@
 "use strict";
 
-angular.module("vault.controllers", [ "vault.factories", "vault.services", "vault.services.installer" ])
+angular.module("vault.controllers", [
+    "vault.factories",
+    "vault.services",
+    "vault.services.installer",
+    "couchapp.service",
+    "CornerCouch"
+])
 
 .controller("HeaderCtrl", [
-    "$scope", "$location", "CouchService", "ExternalVaultVarsService",
-    function($scope, $location, CouchService, ExternalVaultVarsService) {
+    "$scope", "$location", "cornercouch", "ExternalVaultVarsService",
+    function($scope, $location, cornercouch, ExternalVaultVarsService) {
         $scope.logout = function() {
-            CouchService.couchServer.logout();
+            cornercouch().logout();
         };
         if ($location.host() != "localhost" && $location.host() != "127.0.0.1") {
             ExternalVaultVarsService.findLocalVault().then(function(url) {
@@ -19,24 +25,22 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services", "vaul
 ])
 
 .controller("LoginCtrl", [
-    "$scope", "$location", "CouchService",
-    function($scope, $location, CouchService) {
+    "$scope", "$location", "cornercouch",
+    function($scope, $location, cornercouch) {
         $scope.login = function() {
             $scope.message = "";
-            CouchService.couchServer.login($scope.username, $scope.password).then(function() {
-                if (CouchService.couchServer.userCtx && CouchService.couchServer.userCtx.name) {
-                    $location.path("/");
-                } else {
-                    $scope.message = "Login failure, try again";
-                }
+            cornercouch().login($scope.username, $scope.password).success(function() {
+                $location.path("/");
+            }).error(function() {
+                $scope.message = "Login failure, try again";
             });
         };
     }
 ])
 
 .controller("AboutCtrl", [
-    "$scope", "$http", "Vault", "CurrentVault", "CouchService", "InstallService",
-    function($scope, $http, Vault, CurrentVault, CouchService, InstallService) {
+    "$scope", "$http", "Vault", "CurrentVault", "CouchAppService", "InstallService",
+    function($scope, $http, Vault, CurrentVault, CouchAppService, InstallService) {
         if ("sentinelRun" in CurrentVault) {
             $scope.sentinelRun = new Date(CurrentVault.sentinelRun);
         }
@@ -44,7 +48,7 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services", "vaul
             $scope.sentinelVersion = result.sentinel;
         });
         $http.get(
-            "/" + CouchService.currentDb() + "/_design/" + CouchService.currentDesignDoc()
+            "/" + CouchAppService.currentDb() + "/_design/" + CouchAppService.currentDesignDoc()
         ).success(function(data) {
             $scope.uiVersion = data._rev;
         });
