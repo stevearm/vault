@@ -22,6 +22,48 @@
                         </li>
                     </ul>
                 </div>
+                Head back to <a href="index.html">Vault</a>
+            </div>
+            <div class="row">
+                <div class="col-md-12" ng-show="fix.key == 'serverSec'">
+                    <h1>Fix Admin Party</h1>
+                    The server is still set to "admin-party", which means anyone can view/edit anything. Either that, or you are logged out.
+                    <ol>
+                        <li>Open <a href="/_utils" target="_blank">Futon</a></li>
+                        <li>In the bottom right, click the link to create an admin user, or click 'login' to login</li>
+                        <li>Check the status again: <button ng-click="refresh()">Refresh</button></li>
+                    </ol>
+                </div>
+                <div class="col-md-12" ng-show="fix.key == 'idDoc'">
+                    <h1>Missing or broken id document</h1>
+                    The id document that specifies the Vault ID and database name needs to be fixed.
+                    <ol>
+                        <li>Choose an id (probably just leave the default): <input type="text" ng-model="fix.vaultId"/></li>
+                        <li>
+                            Choose the database where the vault records are:
+                            <select ng-model="fix.vaultDbName" ng-options="x for x in fix.dbNames"></select>
+                        </li>
+                        <li>Create doc: <button ng-click="fix.run()">Create</button></li>
+                    </ol>
+                </div>
+                <div class="col-md-12" ng-show="fix.key == 'vaultDbSec'">
+                    <h1>Fix security for VaultDB</h1>
+                    The vault database is publicly viewable.
+                    <ol>
+                        <li>Fix this: <button ng-click="fix.run()">Fix</button></li>
+                    </ol>
+                </div>
+                <div class="col-md-12" ng-show="fix.key == 'vaultDbVault'">
+                    <h1>Create entry for this vault</h1>
+                    There is no entry for this fault.
+                    <ol>
+                        <li>Create doc: <button ng-click="fix.run()">Create</button></li>
+                    </ol>
+                </div>
+                <div class="col-md-12" ng-show="fix.key == 'unknown'">
+                    <h1>Uh oh...</h1>
+                    Something failed, but this UI version can't display what. Go complain to the <a href="http://github.com/stevearm/vault">programmers</a>, because this shouldn't happen.
+                </div>
             </div>
         </div>
 
