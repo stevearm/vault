@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
+angular.module("vault.controllers", [ "vault.factories", "vault.services", "vault.services.installer" ])
 
 .controller("HeaderCtrl", [
     "$scope", "$location", "CouchService", "ExternalVaultVarsService",
@@ -35,8 +35,8 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
 ])
 
 .controller("AboutCtrl", [
-    "$scope", "$http", "Vault", "CurrentVault", "CouchService",
-    function($scope, $http, Vault, CurrentVault, CouchService) {
+    "$scope", "$http", "Vault", "CurrentVault", "CouchService", "InstallService",
+    function($scope, $http, Vault, CurrentVault, CouchService, InstallService) {
         $scope.sentinelRun = new Date(CurrentVault.sentinelRun);
         Vault.get(CurrentVault.vaultId, function(result) {
             $scope.sentinelVersion = result.sentinel;
@@ -50,6 +50,11 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services" ])
             "/" + CurrentVault.vaultDbName + "/_design/indexes"
         ).success(function(data) {
             $scope.indexVersion = data._rev;
+        });
+
+        $scope.validInstall = false;
+        InstallService.getReportCard(function(report) {
+            $scope.validInstall = report.pass;
         });
     }
 ])

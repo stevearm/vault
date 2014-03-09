@@ -7,6 +7,12 @@
     version {{ sentinelVersion }}
     <span ng-show="sentinelRun">(last run {{ sentinelRun|date:'yyyy-MM-dd h:mm a' }})</span>
 </p>
+<p>
+    Install is
+    <span class="text-success" ng-show="validInstall">valid</span>
+    <span class="text-danger" ng-hide="validInstall">broken</span>
+    <a href="install.html">Details</a>
+</p>
 
 <h3>General info</h3>
 <p>Vault is an open-source project hosted on <a href="http://github.com/stevearm/vault">GitHub</a>. Special thanks to the following projects for their work that Vault is based on:

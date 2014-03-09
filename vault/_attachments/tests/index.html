@@ -15,11 +15,16 @@
         <script type="text/javascript" src="../lib/angular-1.2.10/angular.min.js"></script>
         <script type="text/javascript" src="../lib/angular-1.2.10/angular-mocks.js"></script>
 
-        <!-- include source files here... -->
-        <script type="text/javascript" src="../js/services.js"></script>
+        <!-- include any required libraries -->
+        <script src="../lib/corner-couch/angular-cornercouch.js"></script>
 
-        <!-- include spec files here... -->
+        <!-- include the source files being tested -->
+        <script type="text/javascript" src="../js/services.js"></script>
+        <script type="text/javascript" src="../js/installService.js"></script>
+
+        <!-- include tests -->
         <script type="text/javascript" src="spec/CouchServiceSpec.js"></script>
+        <script type="text/javascript" src="spec/InstallServiceSpec.js"></script>
 
     </head>
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="vault">
+    <head>
+        <meta charset="utf-8" />
+        <title>Vault</title>
+        <link rel="stylesheet" type="text/css" href="lib/bootstrap-3.0.3/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="css/main.css"/>
+    </head>
+    <body>
+        <div class="container" ng-controller="InstallCtrl">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Status</h1>
+                    Your current install is
+                    <span class="text-success" ng-show="report.pass">valid</span>
+                    <span class="text-danger" ng-hide="report.pass">broken</span>
+                    <ul>
+                        <li ng-repeat="part in report.parts">
+                            {{ part.title }}:
+                            <span class="text-success" ng-show="part.pass">passed</span>
+                            <span class="text-danger" ng-hide="part.pass">{{ part.message }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <script src="lib/angular-1.2.10/angular.min.js"></script>
+        <script src="lib/corner-couch/angular-cornercouch.js"></script>
+        <script src="js/installService.js"></script>
+        <script src="js/install.js"></script>
+    </body>
+</html>

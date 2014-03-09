@@ -5,7 +5,12 @@ angular.module("vault.factories", [ "ngResource", "vault.services" ])
 .provider("CurrentVault", function() {
     var deferred = null;
     this.getDeferred = function($http, CouchService) {
-        if (deferred == null) { deferred = $http.get("/" + CouchService.currentDb() + "/id"); }
+        if (deferred == null) {
+            deferred = $http.get("/" + CouchService.currentDb() + "/id");
+            deferred.error(function(err, status) {
+                document.location = "install.html";
+            });
+        }
         return deferred;
     };
     this.$get = [ "$http", "CouchService", function(that) { return function($http, CouchService) {
