@@ -4,8 +4,14 @@
 <p><strong>DB</strong> version {{ indexVersion }}</p>
 <p>
     <strong>Sentinel</strong>
-    version {{ sentinelVersion }}
-    <span ng-show="sentinelRun">(last run {{ sentinelRun|date:'yyyy-MM-dd h:mm a' }})</span>
+    <span ng-show="sentinelVersion">
+        version {{ sentinelVersion }}
+        (last run
+            <span ng-show="sentinelRun">{{ sentinelRun|date:'yyyy-MM-dd h:mm a' }}</span>
+            <span ng-hide="sentinelRun">never</span>
+        )
+    </span>
+    <span ng-hide="sentinelVersion">not install</span>
 </p>
 <p>
     Install is

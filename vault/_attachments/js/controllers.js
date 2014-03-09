@@ -37,7 +37,9 @@ angular.module("vault.controllers", [ "vault.factories", "vault.services", "vaul
 .controller("AboutCtrl", [
     "$scope", "$http", "Vault", "CurrentVault", "CouchService", "InstallService",
     function($scope, $http, Vault, CurrentVault, CouchService, InstallService) {
-        $scope.sentinelRun = new Date(CurrentVault.sentinelRun);
+        if ("sentinelRun" in CurrentVault) {
+            $scope.sentinelRun = new Date(CurrentVault.sentinelRun);
+        }
         Vault.get(CurrentVault.vaultId, function(result) {
             $scope.sentinelVersion = result.sentinel;
         });
