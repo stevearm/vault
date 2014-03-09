@@ -1,17 +1,23 @@
 describe("InstallService test suite", function() {
 
-    var callbackCalled;
-
     beforeEach(module("vault.services.installer"));
-    beforeEach(inject([ "$location", function($location) {
-        spyOn($location, "absUrl").and.returnValue("http://localhost:5984/vault/_design/ui/index.html#/");
-        callbackCalled = false;
-    }]));
+
+    beforeEach(module(function($provide) {
+        $provide.value('CouchAppService', {currentDb: function () { return "vault"; }});
+    }));
+
     afterEach(inject([ "$httpBackend", function ($httpBackend) {
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
-        expect(callbackCalled).toBe(true);
     }]));
+
+    var callbackCalled;
+    beforeEach(function() {
+        callbackCalled = false;
+    });
+    afterEach(function() {
+        expect(callbackCalled).toBe(true);
+    });
 
     var getPart = function(parts, key) {
         for (var i = 0; i < parts.length; i++) {
@@ -46,22 +52,8 @@ describe("InstallService test suite", function() {
 
         InstallService.getReportCard(function(result) {
             callbackCalled = true;
-            expect(getPart(result.parts, "serverSec").pass).toBe(true);
-        });
-
-        $httpBackend.flush();
-    }]));
-
-    it("serverSec logged in", inject([ "$httpBackend", "InstallService", function ($httpBackend, InstallService) {
-        $httpBackend
-            .expect("GET", "/_session")
-            .respond({ userCtx: { name: "me", roles: ["_admin"] }});
-
-        $httpBackend.when("GET", /[a-zA-Z].*/).respond(404, { message: "Nothing here" });
-
-        InstallService.getReportCard(function(result) {
-            callbackCalled = true;
-            expect(getPart(result.parts, "serverSec").pass).toBe(true);
+            expect(getPart(result.parts, "serverSec").pass).toBe(false);
+            expect(getPart(result.parts, "serverSec").message).toMatch(/log in/);
         });
 
         $httpBackend.flush();

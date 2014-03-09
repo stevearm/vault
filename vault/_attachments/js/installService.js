@@ -1,10 +1,10 @@
 "use strict";
 
-angular.module("vault.services.installer", ["CornerCouch"])
+angular.module("vault.services.installer", ["couchapp.service", "CornerCouch"])
 
 .service("InstallService", [
-    "$http", "$location", "cornercouch",
-    function($http, $location, cornercouch) {
+    "$http", "$location", "CouchAppService", "cornercouch",
+    function($http, $location, CouchAppService, cornercouch) {
         var createResponse = function(m) {
             var createPart = function(key, title, message) {
                 if (typeof(message) === "undefined") { message = "Unknown result"; }
@@ -42,11 +42,13 @@ angular.module("vault.services.installer", ["CornerCouch"])
             }).success(function(data) {
                 if (data.userCtx.name == null && data.userCtx.roles.indexOf("_admin") != -1) {
                     messages.serverSec = "Server still admin-party";
+                } else if (data.userCtx.name == null) {
+                    messages.serverSec = "Must log in to check install status";
                 } else {
                     messages.serverSec = null;
                 }
 
-                var currentDb = couchServer.getDB($location.absUrl().split("://")[1].split("/")[1]);
+                var currentDb = couchServer.getDB(CouchAppService.currentDb());
                 var idDoc = new currentDb.docClass();
                 idDoc.load("id").error(function() {
                     messages.idDoc = "Error loading doc";
