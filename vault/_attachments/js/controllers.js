@@ -195,6 +195,60 @@ angular.module("vault.controllers", [
     }
 ])
 
+.controller("SyncCtrl", [
+    "$scope", "$http", "Vault", "CouchService",
+    function($scope, $http, Vault, CouchService) {
+        $scope.vaults = [];
+        Vault.query(function(vaults) {
+            $scope.vaults = vaults.filter(function(e) {
+                return e.enabled();
+            })
+        });
+
+        $scope.localDbs = [];
+        $http.get("/_all_dbs").success(function(data) {
+            $scope.localDbs = data;
+        });
+
+        $scope.dbs = function() {
+            var list = $scope.localDbs;
+            for (var i = 0; i < $scope.vaults.length; i++) {
+                list = list.concat($scope.vaults[i].dbs);
+            }
+            list = list.filter(function(name) {
+                return name != "vault" && name != "vaultdb"
+                    && name != "_replicator" && name != "_users";
+            }).reduce(function(p, c) {
+                if (p.indexOf(c) < 0) p.push(c);
+                return p;
+            }, []).sort();
+            if (list.length == 0) {
+                return ["None"];
+            }
+            return list;
+        }
+
+        $scope.sync = function(vault, db, push, pull) {
+            if (!push && !pull) {
+                throw "What the hell?";
+            }
+            var dir = push ? (pull ? "full" : "push") : "pull";
+            var message = dir + " sync of " + db + " with " + vault.name;
+            $scope.message = "Starting " + message;
+            var remoteVault = "http://" + vault.username + ":" + vault.password
+                + "@" + vault.addressable.host + ":" + vault.addressable.port
+                + "/";
+            CouchService.sync(db, remoteVault, push, pull, function(success) {
+                if (success) {
+                    $scope.message = "Finished " + message;
+                } else {
+                    $scope.message = "Something went wrong during " + message;
+                }
+            });
+        }
+    }
+])
+
 .controller("FixerCtrl", [
     "$scope", "$http", "CouchService",
     function($scope, $http, CouchService) {

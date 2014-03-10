@@ -1,0 +1,31 @@
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th rowspan="2">Name</th>
+            <th colspan="{{ dbs().length }}">Managed dbs</th>
+        </tr>
+        <tr>
+            <th ng-repeat="db in dbs()">{{ db }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="vault in vaults | orderBy:'priority()':true">
+            <td><a href="#/vault/{{ vault._id }}">{{ vault.name }}</a></td>
+            <td ng-repeat="db in dbs()">
+                <button type="button" class="btn btn-default btn-xs"
+                        title="Replicate to remote" ng-click="sync(vault, db, true, false)">
+                    <i class="glyphicon glyphicon-upload"></i>
+                </button>
+                <button type="button" class="btn btn-default btn-xs"
+                        title="Replicate from remote" ng-click="sync(vault, db, false, true)">
+                    <i class="glyphicon glyphicon-download"></i>
+                </button>
+                <button type="button" class="btn btn-default btn-xs"
+                        title="Full replication" ng-click="sync(vault, db, true, true)">
+                    <i class="glyphicon glyphicon-refresh"></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div>{{ message }}</div>

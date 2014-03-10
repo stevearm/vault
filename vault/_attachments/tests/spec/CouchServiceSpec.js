@@ -93,4 +93,188 @@ describe("CouchService test suite", function() {
 
         expect(calledBack).toBe(true);
     }]));
+
+    it("should do push replication", inject([ "$httpBackend", "CouchService", function ($httpBackend, CouchService) {
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "mydb",
+                target: "http://user:pass@test.iriscouch.org/mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+
+        var calledBack = false;
+        CouchService.sync("mydb", "http://user:pass@test.iriscouch.org/", true, false, function(pass) {
+            calledBack = true;
+            expect(pass).toBe(true);
+        });
+
+        $httpBackend.flush();
+
+        expect(calledBack).toBe(true);
+    }]));
+
+    it("should do pull replication", inject([ "$httpBackend", "CouchService", function ($httpBackend, CouchService) {
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "http://user:pass@test.iriscouch.org/mydb",
+                target: "mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+
+        var calledBack = false;
+        CouchService.sync("mydb", "http://user:pass@test.iriscouch.org/", false, true, function(pass) {
+            calledBack = true;
+            expect(pass).toBe(true);
+        });
+
+        $httpBackend.flush();
+
+        expect(calledBack).toBe(true);
+    }]));
+
+    it("should do full replication", inject([ "$httpBackend", "CouchService", function ($httpBackend, CouchService) {
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "mydb",
+                target: "http://user:pass@test.iriscouch.org/mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "http://user:pass@test.iriscouch.org/mydb",
+                target: "mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+
+        var calledBack = false;
+        CouchService.sync("mydb", "http://user:pass@test.iriscouch.org/", true, true, function(pass) {
+            calledBack = true;
+            expect(pass).toBe(true);
+        });
+
+        $httpBackend.flush();
+
+        expect(calledBack).toBe(true);
+    }]));
+
+    it("should do full replication", inject([ "$httpBackend", "CouchService", function ($httpBackend, CouchService) {
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "mydb",
+                target: "http://user:pass@test.iriscouch.org/mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "http://user:pass@test.iriscouch.org/mydb",
+                target: "mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+
+        var calledBack = false;
+        CouchService.sync("mydb", "http://user:pass@test.iriscouch.org/", true, true, function(pass) {
+            calledBack = true;
+            expect(pass).toBe(true);
+        });
+
+        $httpBackend.flush();
+
+        expect(calledBack).toBe(true);
+    }]));
+
+    it("should report http error on full replication", inject([ "$httpBackend", "CouchService", function ($httpBackend, CouchService) {
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "mydb",
+                target: "http://user:pass@test.iriscouch.org/mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "http://user:pass@test.iriscouch.org/mydb",
+                target: "mydb",
+                create_target: true
+            })
+            .respond(500, { error: "Fail" });
+
+        var calledBack = false;
+        CouchService.sync("mydb", "http://user:pass@test.iriscouch.org/", true, true, function(pass) {
+            calledBack = true;
+            expect(pass).toBe(false);
+        });
+
+        $httpBackend.flush();
+
+        expect(calledBack).toBe(true);
+    }]));
+
+    it("should report partial doc write failures on full replication", inject([ "$httpBackend", "CouchService", function ($httpBackend, CouchService) {
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "mydb",
+                target: "http://user:pass@test.iriscouch.org/mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:0 } ]
+            });
+        $httpBackend
+            .expect("POST", "/_replicate", {
+                source: "http://user:pass@test.iriscouch.org/mydb",
+                target: "mydb",
+                create_target: true
+            })
+            .respond({
+                ok: true,
+                no_changes: false,
+                history: [ { doc_write_failures:4 } ]
+            });
+
+        var calledBack = false;
+        CouchService.sync("mydb", "http://user:pass@test.iriscouch.org/", true, true, function(pass) {
+            calledBack = true;
+            expect(pass).toBe(false);
+        });
+
+        $httpBackend.flush();
+
+        expect(calledBack).toBe(true);
+    }]));
 });

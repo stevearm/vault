@@ -63,6 +63,13 @@ angular.module("vault", [
                 Vault:          ["Vault", function(Vault) { return Vault; }]
             }
         })
+        .when("/sync", {
+            templateUrl:    "partials/sync.html",
+            controller:     "SyncCtrl",
+            resolve: {
+                Vault:          ["Vault", function(Vault) { return Vault; }]
+            }
+        })
         .when("/fixer", {
             templateUrl:    "partials/fixer.html",
             controller:     "FixerCtrl"

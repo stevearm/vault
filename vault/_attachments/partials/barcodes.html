@@ -11,7 +11,7 @@
     <tbody>
         <tr ng-repeat="vault in vaults | orderBy:'priority()':true">
             <td><a href="#/vault/{{ vault._id }}">{{ vault.name }}</a></td>
-            <td ng-repeat="db in dbs()" ng-click="toggleDb(vault, db)">
+            <td ng-repeat="db in dbs()">
                 <i ng-click="showCode(vault, db)" class="glyphicon glyphicon-qrcode"></i>
             </td>
         </tr>

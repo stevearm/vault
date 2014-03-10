@@ -35,8 +35,8 @@ angular.module("vault.services", [ "CornerCouch" ])
 ])
 
 .service("CouchService", [
-    "$http", "cornercouch",
-    function($http, cornercouch) {
+    "$http", "$q", "cornercouch",
+    function($http, $q, cornercouch) {
         this.couchServer = cornercouch();
 
         this.currentDb = function() {
@@ -132,6 +132,52 @@ angular.module("vault.services", [ "CornerCouch" ])
                 return Document;
             };
         }(this);
+
+        /**
+         * This expectes remoteCouch to start with http, end with a slash, and include (if needed):
+         * - username
+         * - password
+         * - host
+         * - port
+         *
+         * Examples:
+         * - http://192.168.1.100:5984/
+         * - http://username:password@example.iriscouch.org/
+         */
+        this.sync = function(db, remoteCouch, push, pull, callback) {
+            var replicate = function(from, to, callback) {
+                $http.post("/_replicate", {
+                    source: from, target: to, create_target: true
+                }).then(function() {
+                    callback(true);
+                }, function() {
+                    callback(false);
+                });
+            };
+
+            var deferred = [];
+            if (push) {
+                deferred.push($http.post("/_replicate", {
+                    source: db, target: remoteCouch + db, create_target: true
+                }));
+            }
+            if (pull) {
+                deferred.push($http.post("/_replicate", {
+                    source: remoteCouch + db, target: db, create_target: true
+                }));
+            }
+            $q.all(deferred).then(function(results) {
+                var passed = results.reduce(function(acc, curr) {
+                    if (curr.data.history.length == 0) {
+                        return false;
+                    }
+                    return acc && (curr.data.history[0].doc_write_failures == 0);
+                }, true);
+                callback(passed);
+            }, function(failures) {
+                callback(false);
+            });
+        };
     }
 ])
 
