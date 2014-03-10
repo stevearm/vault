@@ -4,25 +4,33 @@ Vault is a distributed information keeping system that runs on top of CouchDB. I
 
 ## Install
 
-To install Vault, you need to prepare CouchDB:
+### Installing Vault
 
-1. Lock down your couch install (Vault won't work with admin party)
-2. Create a user with admin rights for Vault to use
-3. Edit CouchDB's local.ini file:
-    * Ensure the `[couchdb]` section has a `uuid` property (this should already exist on any modern version of CouchDB)
+Vault can run standalone as a pure CouchApp
+
+1. Install [CouchDB][couchdb]
+2. Go to Futon's [replicator page](http://localhost:5984/_utils/replicator.html)
+3. Replicate from `http://stevearm.iriscouch.org/vault-release` to local `vault`
+4. Replicate from `http://stevearm.iriscouch.org/vaultdb-release` to local `vaultdb`
+5. You've now got an unconfigured local vault. Go to the [install page](http://localhost:5984/vault/_design/ui/install.html) to set it up
+
+### Installing Sentinel
+
+Sentinel is a java daemon that syncs vaults automatically in the background for you.
+
+1. Create a folder somewhere (c:/vault)
+1. Download the newest `vault.jar` from the [releases page](https://github.com/stevearm/vault/releases) into that folder
+1. Create a CouchDB user with admin rights for Vault to use
+2. Edit CouchDB's local.ini file:
+    * Ensure the `[couchdb]` section has a `uuid` property (this should already exist on any modern version of CouchDB. If it doesn't, set it to the `vaultId` value in [http://localhost:5984/vault/id](http://localhost:5984/vault/id))
     * Add a `[vault]` section at the bottom and add the following keys
         * `username` (required)
         * `password` (required)
+    * Add a line to the `os_daemons` section of local.ini
+        * Windows: `vault = java -cp c:/vault/vault.jar com.horsefire.vault.CouchMain c:/vault`
+        * Linux: `vault = java -cp /opt/vault/vault.jar com.horsefire.vault.CouchMain /opt/vault`
 
-Once that's done, create a folder somewhere (c:/vault), put `vault.jar` in it, and add the following line to the `os_daemons` section of local.ini for Windows:
-
-    vault = java -cp c:/vault/vault.jar com.horsefire.vault.CouchMain c:/vault
-
-or for linux:
-
-    vault = java -cp /opt/vault/vault.jar com.horsefire.vault.CouchMain /opt/vault
-
-Once you've added that line, CouchDB will keep Vault running, and Vault will read everything it needs from CouchDB's config using the [api][couchdb-externals], and keep syncing.
+Once you've added that line, CouchDB will keep Sentinel running, and Sentinel will read everything it needs from CouchDB's config using the [api][couchdb-externals], and keep syncing.
 
 ## Licences
 Vault is licenced under [Apache Licence 2.0][apache20]. It contains libraries licenced under:
@@ -94,6 +102,7 @@ Worker trigger db entry for each app
 * started: timestamp (last time started)
 * finished: timestamp (last time finished)
 
+[couchdb]: http://couchdb.apache.org/
 [apache20]: http://www.apache.org/licenses/LICENSE-2.0.html
 [lgpl]: http://www.gnu.org/copyleft/lesser.html
 [mit-angular]: https://github.com/angular/angular.js/blob/master/LICENSE
